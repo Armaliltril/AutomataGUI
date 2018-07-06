@@ -2,6 +2,7 @@ package com.example.demo.view
 
 import com.example.demo.app.Styles
 import com.example.demo.controllers.FileController
+import com.example.demo.signals.NewFileSignal
 import javafx.scene.paint.Color
 import tornadofx.*
 
@@ -12,22 +13,31 @@ class TopMenu : View() {
         menu("File") {
             menu("New") {
                 item("Project") {
+                    // TODO
                     action {
                         fileController.makeProject()
                     }
                     addClass(Styles.menuItem)
                 }
                 item("File") {
-                    action {
-                        fileController.makeFile()
+                    var filename = ""
+
+                    subscribe<NewFileSignal> {
+                        filename = it.filename
+                        fileController.makeFile(filename)
                     }
+
+                    action {
+                        find(NewFileCreator::class).openModal()
+                    }
+
                     addClass(Styles.menuItem)
                 }
                 addClass(Styles.menu)
             }
             item("Open") {
                 action {
-                    fileController.chooseFiles()
+                    fileController.openFiles()
                 }
                 addClass(Styles.menuItem)
             }

@@ -29,60 +29,70 @@ class WorkingField : View() {
 
     private var workArea: Pane by singleAssign()
 
-    override val root = hbox {
+    private val openedFiles: OpenedFiles by inject()
 
-        toolbox = vbox {
+    override val root = vbox {
+        add(openedFiles)
 
-            add(createCircle())
+        hbox {
 
-            // In case of other objects
-            spacing = 10.0
+            toolbox = vbox {
+
+                add(createCircle())
+
+                // In case of other objects
+                spacing = 10.0
+                padding = Insets(10.0)
+                alignment = Pos.CENTER
+
+                hboxConstraints {
+                    hgrow = Priority.NEVER
+                }
+                style {
+                    backgroundColor += Color.WHITE
+                    borderColor += box(Color.BLACK)
+                }
+            }
+            anchorpane {
+                workArea = pane {
+
+                    anchorpaneConstraints {
+                        leftAnchor = 0.0
+                        topAnchor = 0.0
+                        rightAnchor = 0.0
+                        bottomAnchor = 0.0
+                    }
+
+                    // When draqgging we actually operate 'singletone' circle, hiding it when dragging is over
+                    movingCircle = circle(radius = circleRadius) {
+                        addClass(Styles.automataState)
+                        isVisible = false
+                        opacity = 0.7
+                        effect = DropShadow()
+                    }
+                    add(movingCircle)
+                }
+
+                hboxConstraints {
+                    hgrow = Priority.ALWAYS
+                }
+
+            }
+
+            vboxConstraints {
+                vgrow = Priority.ALWAYS
+            }
+
             padding = Insets(10.0)
-            alignment = Pos.CENTER
+            spacing = 10.0
 
-            hboxConstraints {
-                hgrow = Priority.NEVER
-            }
-        }
-        anchorpane {
-            workArea = pane {
-
-                anchorpaneConstraints {
-                    leftAnchor = 0.0
-                    topAnchor = 0.0
-                    rightAnchor = 0.0
-                    bottomAnchor = 0.0
-                }
-
-                // When draqgging we actually operate 'singletone' circle, hiding it when dragging is over
-                movingCircle = circle(radius = circleRadius) {
-                    addClass(Styles.automataState)
-                    isVisible = false
-                    opacity = 0.7
-                    effect = DropShadow()
-                }
-                add( movingCircle )
-            }
-
-            hboxConstraints {
-                hgrow = Priority.ALWAYS
-            }
+            addEventFilter(MouseEvent.MOUSE_PRESSED, ::startDrag)
+            addEventFilter(MouseEvent.MOUSE_DRAGGED, ::animateDrag)
+            addEventFilter(MouseEvent.MOUSE_EXITED, ::stopDrag)
+            addEventFilter(MouseEvent.MOUSE_RELEASED, ::stopDrag)
+            addEventFilter(MouseEvent.MOUSE_RELEASED, ::drop)
 
         }
-
-        vboxConstraints {
-            vgrow = Priority.ALWAYS
-        }
-
-        padding = Insets(10.0)
-        spacing = 10.0
-
-        addEventFilter(MouseEvent.MOUSE_PRESSED, ::startDrag)
-        addEventFilter(MouseEvent.MOUSE_DRAGGED, ::animateDrag)
-        addEventFilter(MouseEvent.MOUSE_EXITED, ::stopDrag)
-        addEventFilter(MouseEvent.MOUSE_RELEASED, ::stopDrag)
-        addEventFilter(MouseEvent.MOUSE_RELEASED, ::drop)
-
     }
 
     init {
