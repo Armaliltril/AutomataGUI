@@ -7,6 +7,7 @@ import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.effect.DropShadow
+import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
@@ -92,6 +93,14 @@ class WorkingField : View() {
             addEventFilter(MouseEvent.MOUSE_RELEASED, ::stopDrag)
             addEventFilter(MouseEvent.MOUSE_RELEASED, ::drop)
 
+            shortcut("Shift+C") {
+                // fireEvent()
+            }
+        }
+
+        style {
+            setPrefSize(1200.0, 800.0)
+            spacing = 10.px
         }
     }
 

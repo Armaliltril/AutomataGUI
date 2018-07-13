@@ -10,6 +10,7 @@ class Styles : Stylesheet() {
         val menu by cssclass()
         val menuItem by cssclass()
         val fileLabel by cssclass()
+        val stateEditor by cssclass()
     }
 
     init {
@@ -24,6 +25,12 @@ class Styles : Stylesheet() {
             fontWeight = FontWeight.SEMI_BOLD
         }
         fileLabel {
+            backgroundColor += Color.WHITE
+            borderColor += box(Color.BLACK)
+            borderWidth += box(1.px)
+            padding = box(2.px)
+        }
+        stateEditor {
             backgroundColor += Color.WHITE
             borderColor += box(Color.BLACK)
             borderWidth += box(1.px)

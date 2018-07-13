@@ -10,7 +10,7 @@ class NewFileCreator: View() {
         textfield {
             action {
                 fire(NewFileSignal(text))
-                // TODO(закрыть)
+                close()
             }
         }
     }
