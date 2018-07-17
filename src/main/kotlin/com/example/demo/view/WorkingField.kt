@@ -2,12 +2,10 @@ package com.example.demo.view
 
 import com.example.demo.app.Styles
 import javafx.geometry.Insets
-import javafx.geometry.Point2D
 import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.effect.DropShadow
-import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
@@ -19,10 +17,12 @@ class WorkingField : View() {
 
     private val circleRadius = 25.0
 
-    private var isNodeMoving: Boolean = false
-    private var isNodeSelected: Boolean = false
+    private var isNodeMoving = false
+    private var isNodeSelected = false
+    private var isNodeFromField = false
 
     private val toolboxItems = mutableListOf<Node>()
+    private val workingFieldItems = mutableListOf<Node>()
 
     private var movingCircle: Circle by singleAssign()
 
@@ -30,10 +30,7 @@ class WorkingField : View() {
 
     private var workArea: Pane by singleAssign()
 
-    private val openedFiles: OpenedFiles by inject()
-
     override val root = vbox {
-        add(openedFiles)
 
         hbox {
 
@@ -111,15 +108,30 @@ class WorkingField : View() {
     private fun startDrag(evt : MouseEvent) {
 
         toolboxItems.firstOrNull {
-            val mousePt : Point2D = it.sceneToLocal( evt.sceneX, evt.sceneY )
-            it.contains(mousePt)
-        }
-                .apply {
-                    if( this != null ) {
-                        isNodeMoving = true
-                        isNodeSelected = true
+                        val mousePt = it.sceneToLocal(evt.sceneX, evt.sceneY)
+             it.contains(mousePt)
                     }
-                }
+                    .apply {
+                        if( this != null ) {
+                            isNodeMoving = true
+                            isNodeSelected = true
+                            isNodeFromField = false
+                        }
+                    }
+
+        workingFieldItems.firstOrNull {
+                            val mousePt = it.sceneToLocal(evt.sceneX, evt.sceneY)
+                 it.contains(mousePt)
+                         }
+                         .apply {
+                             if (this != null) {
+                                 isNodeMoving = true
+                                 isNodeSelected = true
+                                 isNodeFromField = true
+                                 this.removeFromParent()
+                                 workingFieldItems.remove(this)
+                                }
+                         }
 
     }
 
@@ -146,13 +158,17 @@ class WorkingField : View() {
     private fun drop(evt : MouseEvent) {
 
         val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
-        if( workArea.contains(mousePt) ) {
+        val isThereNoOtherItem = workingFieldItems.firstOrNull { it.contains(mousePt) } == null
+        println(workingFieldItems)
+        if( workArea.contains(mousePt) && isThereNoOtherItem) {
             if (isNodeMoving) {
                 val newCircle = createCircle()
                 workArea.add( newCircle )
+                workingFieldItems.add(newCircle)
                 newCircle.relocate( mousePt.x, mousePt.y )
 
                 movingCircle.toFront()
+
             }
         }
 

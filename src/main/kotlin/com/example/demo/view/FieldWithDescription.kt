@@ -4,8 +4,8 @@ import com.example.demo.signals.AutomataStateBox
 import tornadofx.*
 
 class FieldWithDescription(description: String, val stateBox: AutomataStateBox): View() {
-    val descriptionLabel = label(description)
-    val value = textfield {
+    private val descriptionLabel = label(description)
+    private val value = textfield {
         action {
             fillStateBox()
             fire(stateBox)

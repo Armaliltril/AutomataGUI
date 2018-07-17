@@ -5,13 +5,13 @@ import tornadofx.*
 
 class MainView : View() {
     private val topMenu: TopMenu by inject()
-    private val workingField: WorkingField by inject()
+    private val openedField: OpenedFiles by inject()
     private val automataStateEditor: AutomataStateEditor by inject()
 
     override val root = vbox {
         add(topMenu)
         hbox {
-            add(workingField)
+            add(openedField)
             vbox {
                 rectangle {
                     height = 200.0

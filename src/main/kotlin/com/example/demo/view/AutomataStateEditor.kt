@@ -8,10 +8,10 @@ import com.example.demo.signals.AutomataYCoordinateBox
 import tornadofx.*
 
 class AutomataStateEditor: View() {
-    val nameField = FieldWithDescription("Name:", AutomataNameBox())
-    val typeField = FieldWithDescription("Type:", AutomataTypeBox())
-    val xCoordinateField = FieldWithDescription("X Coordinate:", AutomataXCoordinateBox())
-    val yCoordinateBox = FieldWithDescription("Y Coordinate:", AutomataYCoordinateBox())
+    private val nameField = FieldWithDescription("Name:", AutomataNameBox())
+    private val typeField = FieldWithDescription("Type:", AutomataTypeBox())
+    private val xCoordinateField = FieldWithDescription("X Coordinate:", AutomataXCoordinateBox())
+    private val yCoordinateBox = FieldWithDescription("Y Coordinate:", AutomataYCoordinateBox())
 
     override val root = vbox {
         add(nameField)
