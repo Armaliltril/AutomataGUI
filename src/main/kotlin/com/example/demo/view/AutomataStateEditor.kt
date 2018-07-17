@@ -2,6 +2,7 @@ package com.example.demo.view
 
 import com.example.demo.app.Styles
 import com.example.demo.automata.AutomataState
+import com.example.demo.automata.Connection
 import com.example.demo.signals.AutomataNameBox
 import com.example.demo.signals.AutomataTypeBox
 import com.example.demo.signals.AutomataXCoordinateBox
@@ -23,7 +24,7 @@ class AutomataStateEditor: View() {
                 field("Type") {
                     listview<AutomataState.QueueType> {
                         AutomataState.QueueType.values().forEach { items.add(it) }
-                        prefHeight = items.size * 25.0
+                        prefHeight = items.size * CELL_HEIGHT
                         onUserSelect {
                             fire(AutomataTypeBox(it))
                         }
@@ -47,17 +48,32 @@ class AutomataStateEditor: View() {
                 }
 
             }
-            add(getConnection())
-            add(getConnection())
+
         }
     }
 
-    private fun getConnection() =
+    private fun getConnection(connection: Connection) =
             fieldset {
-                field("Connection") {
-                    textfield {
+                field("Name") {
+                    textfield(connection.name) {
 
                     }
                 }
+                field("Type") {
+                    listview<Connection.MessageType> {
+                        Connection.MessageType.values().forEach { items.add(it) }
+                        prefHeight = items.size * CELL_HEIGHT
+                    }
+                }
+                field("Condition") {
+
+                }
+                field("Connected With") {
+
+                }
             }
+
+    private val CELL_HEIGHT = 25.0
 }
+
+//TODO: Add subscribes
