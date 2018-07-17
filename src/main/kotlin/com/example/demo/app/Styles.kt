@@ -35,6 +35,6 @@ class Styles : Stylesheet() {
             borderColor += box(Color.BLACK)
             borderWidth += box(1.px)
             padding = box(2.px)
-        }
+        } //TODO: remake
     }
 }

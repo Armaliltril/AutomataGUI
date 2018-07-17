@@ -1,3 +1,5 @@
 package com.example.demo.signals
 
-class AutomataNameBox(): AutomataStateBox()
+import tornadofx.*
+
+class AutomataNameBox(var name: String): FXEvent(EventBus.RunOn.ApplicationThread)

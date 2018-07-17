@@ -1,3 +1,6 @@
 package com.example.demo.signals
 
-class AutomataTypeBox: AutomataStateBox()
+import com.example.demo.automata.AutomataState
+import tornadofx.*
+
+class AutomataTypeBox(val type: AutomataState.QueueType): FXEvent(EventBus.RunOn.ApplicationThread)

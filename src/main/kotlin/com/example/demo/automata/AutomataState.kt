@@ -6,6 +6,7 @@ data class AutomataState(var name: String,
     enum class QueueType {
         INITIAL,
         GENERAL,
-        FINAL
+        FINAL;
+
     }
 }

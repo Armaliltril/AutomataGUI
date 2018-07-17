@@ -159,7 +159,7 @@ class WorkingField : View() {
 
         val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
         val isThereNoOtherItem = workingFieldItems.firstOrNull { it.contains(mousePt) } == null
-        println(workingFieldItems)
+
         if( workArea.contains(mousePt) && isThereNoOtherItem) {
             if (isNodeMoving) {
                 val newCircle = createCircle()

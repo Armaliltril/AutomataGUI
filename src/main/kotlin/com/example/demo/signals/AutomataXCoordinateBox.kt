@@ -1,4 +1,5 @@
 package com.example.demo.signals
 
-class AutomataXCoordinateBox: AutomataStateBox() {
-}
+import tornadofx.*
+
+class AutomataXCoordinateBox(val value: Double): FXEvent(EventBus.RunOn.ApplicationThread)
