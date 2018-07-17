@@ -63,10 +63,8 @@ class WorkingField : View() {
 
                     // When draqgging we actually operate 'singletone' circle, hiding it when dragging is over
                     movingCircle = circle(radius = circleRadius) {
-                        addClass(Styles.automataState)
+                        addClass(Styles.movingAutomataState)
                         isVisible = false
-                        opacity = 0.7
-                        effect = DropShadow()
                     }
                     add(movingCircle)
                 }
@@ -114,7 +112,6 @@ class WorkingField : View() {
                     .apply {
                         if( this != null ) {
                             isNodeMoving = true
-                            isNodeSelected = true
                             isNodeFromField = false
                         }
                     }
@@ -126,9 +123,9 @@ class WorkingField : View() {
                          .apply {
                              if (this != null) {
                                  isNodeMoving = true
-                                 isNodeSelected = true
                                  isNodeFromField = true
                                  this.removeFromParent()
+                                 animateDrag(evt)
                                  workingFieldItems.remove(this)
                                 }
                          }
@@ -140,7 +137,7 @@ class WorkingField : View() {
         val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
         if( workArea.contains(mousePt) ) {
 
-            if( !movingCircle.isVisible && isNodeSelected)
+            if( !movingCircle.isVisible && isNodeMoving)
                 movingCircle.isVisible = true
 
             movingCircle.relocate( mousePt.x, mousePt.y )
@@ -158,11 +155,15 @@ class WorkingField : View() {
     private fun drop(evt : MouseEvent) {
 
         val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
+        //TODO: make better implementation with more range
         val isThereNoOtherItem = workingFieldItems.firstOrNull { it.contains(mousePt) } == null
 
         if( workArea.contains(mousePt) && isThereNoOtherItem) {
             if (isNodeMoving) {
                 val newCircle = createCircle()
+                newCircle.centerX = mousePt.x
+                newCircle.centerY = mousePt.y
+
                 workArea.add( newCircle )
                 workingFieldItems.add(newCircle)
                 newCircle.relocate( mousePt.x, mousePt.y )
@@ -173,8 +174,6 @@ class WorkingField : View() {
         }
 
         isNodeMoving = false
-        isNodeSelected = false
-
     }
 
     private fun createCircle() = Circle().apply {

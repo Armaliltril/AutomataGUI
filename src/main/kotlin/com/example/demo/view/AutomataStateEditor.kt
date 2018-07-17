@@ -1,6 +1,5 @@
 package com.example.demo.view
 
-import com.example.demo.app.Styles
 import com.example.demo.automata.AutomataState
 import com.example.demo.automata.Connection
 import com.example.demo.signals.AutomataNameBox
@@ -10,6 +9,8 @@ import com.example.demo.signals.AutomataYCoordinateBox
 import tornadofx.*
 
 class AutomataStateEditor: View() {
+
+    private var CELLHEIGHT = 25.0
 
     override val root = vbox {
         form {
@@ -24,7 +25,8 @@ class AutomataStateEditor: View() {
                 field("Type") {
                     listview<AutomataState.QueueType> {
                         AutomataState.QueueType.values().forEach { items.add(it) }
-                        prefHeight = items.size * CELL_HEIGHT
+                        prefHeight = items.size * CELLHEIGHT
+
                         onUserSelect {
                             fire(AutomataTypeBox(it))
                         }
@@ -48,7 +50,6 @@ class AutomataStateEditor: View() {
                 }
 
             }
-
         }
     }
 
@@ -62,7 +63,7 @@ class AutomataStateEditor: View() {
                 field("Type") {
                     listview<Connection.MessageType> {
                         Connection.MessageType.values().forEach { items.add(it) }
-                        prefHeight = items.size * CELL_HEIGHT
+                        prefHeight = items.size * CELLHEIGHT
                     }
                 }
                 field("Condition") {
@@ -73,7 +74,6 @@ class AutomataStateEditor: View() {
                 }
             }
 
-    private val CELL_HEIGHT = 25.0
 }
 
 //TODO: Add subscribes
