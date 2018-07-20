@@ -5,7 +5,6 @@ import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.Parent
-import javafx.scene.effect.DropShadow
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
@@ -18,16 +17,13 @@ class WorkingField : View() {
     private val circleRadius = 25.0
 
     private var isNodeMoving = false
-    private var isNodeSelected = false
     private var isNodeFromField = false
 
     private val toolboxItems = mutableListOf<Node>()
     private val workingFieldItems = mutableListOf<Node>()
 
     private var movingCircle: Circle by singleAssign()
-
     private var toolbox: Parent by singleAssign()
-
     private var workArea: Pane by singleAssign()
 
     override val root = vbox {
@@ -82,7 +78,7 @@ class WorkingField : View() {
             padding = Insets(10.0)
             spacing = 10.0
 
-            addEventFilter(MouseEvent.MOUSE_PRESSED, ::startDrag)
+            addEventFilter(MouseEvent.MOUSE_PRESSED, ::pressNode)
             addEventFilter(MouseEvent.MOUSE_DRAGGED, ::animateDrag)
             addEventFilter(MouseEvent.MOUSE_EXITED, ::stopDrag)
             addEventFilter(MouseEvent.MOUSE_RELEASED, ::stopDrag)
@@ -103,7 +99,7 @@ class WorkingField : View() {
         toolboxItems.addAll( toolbox.childrenUnmodifiable )
     }
 
-    private fun startDrag(evt : MouseEvent) {
+    private fun pressNode(evt : MouseEvent) {
 
         toolboxItems.firstOrNull {
                         val mousePt = it.sceneToLocal(evt.sceneX, evt.sceneY)
@@ -117,21 +113,20 @@ class WorkingField : View() {
                     }
 
         workingFieldItems.firstOrNull {
-                            val mousePt = it.sceneToLocal(evt.sceneX, evt.sceneY)
-                 it.contains(mousePt)
-                         }
+                val mousePt = it.sceneToLocal(evt.sceneX, evt.sceneY)
+                it.contains(mousePt)
+            }
                          .apply {
-                             if (this != null) {
-                                 isNodeMoving = true
-                                 isNodeFromField = true
-                                 this.removeFromParent()
-                                 animateDrag(evt)
-                                 workingFieldItems.remove(this)
+                            if (this != null) {
+                                when {
+                                    evt.isShiftDown -> startDragging(this)
+                                    else -> selectNode(this)
                                 }
-                         }
+                            }
+                    }
+
 
     }
-
     private fun animateDrag(evt : MouseEvent) {
 
         val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
@@ -144,14 +139,12 @@ class WorkingField : View() {
         }
 
     }
-
     private fun stopDrag(evt : MouseEvent) {
 
         if( movingCircle.isVisible )
             movingCircle.isVisible = false
 
     }
-
     private fun drop(evt : MouseEvent) {
 
         val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
@@ -176,9 +169,30 @@ class WorkingField : View() {
         isNodeMoving = false
     }
 
+    private fun selectNode(node: Node) {
+        isNodeMoving = false
+        isNodeFromField = true
+        removeStyleFromNodes(Styles.chosenAutomataState)
+        node.addClass(Styles.chosenAutomataState)
+    }
+    private fun startDragging(node: Node) {
+        isNodeMoving = true
+        isNodeFromField = true
+        node.removeFromParent()
+        //animateDrag
+        workingFieldItems.remove(node)
+    }
+
     private fun createCircle() = Circle().apply {
         radius = circleRadius
         addClass(Styles.automataState)
+    }
+
+    private fun removeStyleFromNodes(styleClass: CssRule) {
+        workingFieldItems.forEach {
+            if (it.hasClass(styleClass))
+                it.removeClass(styleClass)
+        }
     }
 
 }

@@ -1,7 +1,7 @@
 package com.example.demo.view
 
 import com.example.demo.automata.AutomataState
-import com.example.demo.automata.Connection
+import com.example.demo.automata.Transaction
 import com.example.demo.signals.AutomataNameBox
 import com.example.demo.signals.AutomataTypeBox
 import com.example.demo.signals.AutomataXCoordinateBox
@@ -53,16 +53,16 @@ class AutomataStateEditor: View() {
         }
     }
 
-    private fun getConnection(connection: Connection) =
+    private fun getConnection(transaction: Transaction) =
             fieldset {
                 field("Name") {
-                    textfield(connection.name) {
+                    textfield(transaction.name) {
 
                     }
                 }
                 field("Type") {
-                    listview<Connection.MessageType> {
-                        Connection.MessageType.values().forEach { items.add(it) }
+                    listview<Transaction.MessageType> {
+                        Transaction.MessageType.values().forEach { items.add(it) }
                         prefHeight = items.size * CELLHEIGHT
                     }
                 }

@@ -7,6 +7,5 @@ data class AutomataState(var name: String,
         INITIAL,
         GENERAL,
         FINAL;
-
     }
 }
