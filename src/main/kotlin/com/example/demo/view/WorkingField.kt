@@ -16,13 +16,10 @@ class WorkingField : View() {
 
     private val circleRadius = 25.0
 
-    private var isNodeMoving = false
-    private var isNodeFromField = false
-
     private val toolboxItems = mutableListOf<Node>()
     private val workingFieldItems = mutableListOf<Node>()
 
-    private var movingCircle: Circle by singleAssign()
+    private var movingCircle: Node? = null
     private var toolbox: Parent by singleAssign()
     private var workArea: Pane by singleAssign()
 
@@ -56,19 +53,11 @@ class WorkingField : View() {
                         rightAnchor = 0.0
                         bottomAnchor = 0.0
                     }
-
-                    // When draqgging we actually operate 'singletone' circle, hiding it when dragging is over
-                    movingCircle = circle(radius = circleRadius) {
-                        addClass(Styles.movingAutomataState)
-                        isVisible = false
-                    }
-                    add(movingCircle)
                 }
 
                 hboxConstraints {
                     hgrow = Priority.ALWAYS
                 }
-
             }
 
             vboxConstraints {
@@ -82,11 +71,6 @@ class WorkingField : View() {
             addEventFilter(MouseEvent.MOUSE_DRAGGED, ::animateDrag)
             addEventFilter(MouseEvent.MOUSE_EXITED, ::stopDrag)
             addEventFilter(MouseEvent.MOUSE_RELEASED, ::stopDrag)
-            addEventFilter(MouseEvent.MOUSE_RELEASED, ::drop)
-
-            shortcut("Shift+C") {
-                // fireEvent()
-            }
         }
 
         style {
@@ -107,14 +91,16 @@ class WorkingField : View() {
                     }
                     .apply {
                         if( this != null ) {
-                            isNodeMoving = true
-                            isNodeFromField = false
+                            movingCircle = createCircle()
+                            //It's "kostyl" but works perfect ;)
+                            workArea.add(movingCircle!!)
+                            movingCircle!!.relocate(-1000.0, -1000.0)
                         }
                     }
 
         workingFieldItems.firstOrNull {
-                val mousePt = it.sceneToLocal(evt.sceneX, evt.sceneY)
-                it.contains(mousePt)
+                            val mousePt = it.sceneToLocal(evt.sceneX, evt.sceneY)
+                            it.contains(mousePt)
             }
                          .apply {
                             if (this != null) {
@@ -130,57 +116,23 @@ class WorkingField : View() {
     private fun animateDrag(evt : MouseEvent) {
 
         val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
-        if( workArea.contains(mousePt) ) {
-
-            if( !movingCircle.isVisible && isNodeMoving)
-                movingCircle.isVisible = true
-
-            movingCircle.relocate( mousePt.x, mousePt.y )
+        if( workArea.contains(mousePt) && movingCircle != null ) {
+            movingCircle!!.relocate( mousePt.x, mousePt.y )
         }
 
     }
     private fun stopDrag(evt : MouseEvent) {
-
-        if( movingCircle.isVisible )
-            movingCircle.isVisible = false
-
-    }
-    private fun drop(evt : MouseEvent) {
-
-        val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
-        //TODO: make better implementation with more range
-        val isThereNoOtherItem = workingFieldItems.firstOrNull { it.contains(mousePt) } == null
-
-        if( workArea.contains(mousePt) && isThereNoOtherItem) {
-            if (isNodeMoving) {
-                val newCircle = createCircle()
-                newCircle.centerX = mousePt.x
-                newCircle.centerY = mousePt.y
-
-                workArea.add( newCircle )
-                workingFieldItems.add(newCircle)
-                newCircle.relocate( mousePt.x, mousePt.y )
-
-                movingCircle.toFront()
-
-            }
-        }
-
-        isNodeMoving = false
+        if (movingCircle != null)
+            workingFieldItems.add(movingCircle!!)
+        movingCircle = null
     }
 
     private fun selectNode(node: Node) {
-        isNodeMoving = false
-        isNodeFromField = true
         removeStyleFromNodes(Styles.chosenAutomataState)
         node.addClass(Styles.chosenAutomataState)
     }
     private fun startDragging(node: Node) {
-        isNodeMoving = true
-        isNodeFromField = true
-        node.removeFromParent()
-        //animateDrag
-        workingFieldItems.remove(node)
+        movingCircle = node
     }
 
     private fun createCircle() = Circle().apply {
