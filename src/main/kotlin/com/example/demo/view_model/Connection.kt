@@ -2,6 +2,6 @@ package com.example.demo.view_model
 
 import tornadofx.*
 
-abstract class Connection(var startNode: Node, var endNode: Node): ViewModel() {
+abstract class Connection(var startNode: GraphNode, var endNode: GraphNode): ViewModel() {
 
 }

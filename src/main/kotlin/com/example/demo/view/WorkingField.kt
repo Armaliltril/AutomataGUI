@@ -9,7 +9,7 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
-import javafx.scene.shape.Circle
+import com.example.demo.view_model.StateNode
 import tornadofx.*
 
 class WorkingField : View() {
@@ -29,7 +29,7 @@ class WorkingField : View() {
 
             toolbox = vbox {
 
-                add(createCircle())
+                add(createDefaultStateNode())
 
                 // In case of other objects
                 spacing = 10.0
@@ -91,7 +91,8 @@ class WorkingField : View() {
                     }
                     .apply {
                         if( this != null ) {
-                            movingCircle = createCircle()
+                            println("Toolbox is not null!")
+                            movingCircle = createDefaultStateNode()
                             //It's "kostyl" but works perfect ;)
                             workArea.add(movingCircle!!)
                             movingCircle!!.relocate(-1000.0, -1000.0)
@@ -104,6 +105,7 @@ class WorkingField : View() {
             }
                          .apply {
                             if (this != null) {
+                                println("WPRKFIELD Items is not null!")
                                 when {
                                     evt.isShiftDown -> startDragging(this)
                                     else -> selectNode(this)
@@ -119,11 +121,12 @@ class WorkingField : View() {
         if( workArea.contains(mousePt) && movingCircle != null ) {
             movingCircle!!.relocate( mousePt.x, mousePt.y )
         }
-
     }
     private fun stopDrag(evt : MouseEvent) {
+
         if (movingCircle != null)
             workingFieldItems.add(movingCircle!!)
+
         movingCircle = null
     }
 
@@ -135,9 +138,8 @@ class WorkingField : View() {
         movingCircle = node
     }
 
-    private fun createCircle() = Circle().apply {
+    private fun createDefaultStateNode() = StateNode().apply {
         radius = circleRadius
-        addClass(Styles.automataState)
     }
 
     private fun removeStyleFromNodes(styleClass: CssRule) {
