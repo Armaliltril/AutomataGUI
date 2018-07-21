@@ -7,6 +7,8 @@ import tornadofx.*
 
 abstract class GraphNode: Circle() {
     val connections = mutableListOf<Connection>()
+    var xCoordinate = 0.0
+    var yCoordinate = 0.0
 
     init {
         addClass(Styles.automataState)

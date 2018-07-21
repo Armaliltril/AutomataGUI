@@ -2,10 +2,7 @@ package com.example.demo.view
 
 import com.example.demo.automata.AutomataState
 import com.example.demo.automata.Transaction
-import com.example.demo.signals.AutomataNameBox
-import com.example.demo.signals.AutomataTypeBox
-import com.example.demo.signals.AutomataXCoordinateBox
-import com.example.demo.signals.AutomataYCoordinateBox
+import com.example.demo.signals.*
 import tornadofx.*
 
 class AutomataStateEditor: View() {
@@ -20,6 +17,7 @@ class AutomataStateEditor: View() {
                         action {
                             fire(AutomataNameBox(text))
                         }
+                        subscribe<AutomataStateBox> { text = it.state.automataState.name }
                     }
                 }
                 field("Type") {
@@ -30,6 +28,8 @@ class AutomataStateEditor: View() {
                         onUserSelect {
                             fire(AutomataTypeBox(it))
                         }
+
+                        subscribe<AutomataStateBox> { /*TODO*/ }
                     }
                 }
                 field("X Coordinate") {
@@ -38,6 +38,7 @@ class AutomataStateEditor: View() {
                         action {
                             fire(AutomataXCoordinateBox(text.toDouble()))
                         }
+                        subscribe<AutomataStateBox> { text = it.state.xCoordinate.toString() }
                     }
                 }
                 field("Y Coordinate") {
@@ -46,6 +47,7 @@ class AutomataStateEditor: View() {
                         action {
                             fire(AutomataYCoordinateBox(text.toDouble()))
                         }
+                        subscribe<AutomataStateBox> { text = it.state.yCoordinate.toString() }
                     }
                 }
 

@@ -1,6 +1,7 @@
 package com.example.demo.view
 
 import com.example.demo.app.Styles
+import com.example.demo.signals.*
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Node
@@ -19,7 +20,8 @@ class WorkingField : View() {
     private val toolboxItems = mutableListOf<Node>()
     private val workingFieldItems = mutableListOf<Node>()
 
-    private var movingCircle: Node? = null
+    private var movingNode: Node? = null
+
     private var toolbox: Parent by singleAssign()
     private var workArea: Pane by singleAssign()
 
@@ -81,6 +83,7 @@ class WorkingField : View() {
 
     init {
         toolboxItems.addAll( toolbox.childrenUnmodifiable )
+        subscribe<AutomataNameBox> { println(it.name) }
     }
 
     private fun pressNode(evt : MouseEvent) {
@@ -91,11 +94,10 @@ class WorkingField : View() {
                     }
                     .apply {
                         if( this != null ) {
-                            println("Toolbox is not null!")
-                            movingCircle = createDefaultStateNode()
+                            movingNode = createDefaultStateNode()
                             //It's "kostyl" but works perfect ;)
-                            workArea.add(movingCircle!!)
-                            movingCircle!!.relocate(-1000.0, -1000.0)
+                            workArea.add(movingNode!!)
+                            movingNode!!.relocate(-1000.0, -1000.0)
                         }
                     }
 
@@ -105,7 +107,6 @@ class WorkingField : View() {
             }
                          .apply {
                             if (this != null) {
-                                println("WPRKFIELD Items is not null!")
                                 when {
                                     evt.isShiftDown -> startDragging(this)
                                     else -> selectNode(this)
@@ -118,35 +119,67 @@ class WorkingField : View() {
     private fun animateDrag(evt : MouseEvent) {
 
         val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
-        if( workArea.contains(mousePt) && movingCircle != null ) {
-            movingCircle!!.relocate( mousePt.x, mousePt.y )
+        if( workArea.contains(mousePt) && movingNode != null ) {
+            movingNode!!.relocate( mousePt.x, mousePt.y )
         }
     }
     private fun stopDrag(evt : MouseEvent) {
 
-        if (movingCircle != null)
-            workingFieldItems.add(movingCircle!!)
+        if (movingNode != null) {
+            val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
+            (movingNode!! as StateNode).apply {
+                xCoordinate = mousePt.x
+                yCoordinate = mousePt.y
+            }
 
-        movingCircle = null
+            workingFieldItems.add(movingNode!!)
+        }
+
+        movingNode = null
     }
 
     private fun selectNode(node: Node) {
+        fire(AutomataStateBox(node as StateNode))
+        unsubscribeNodesFromEditor()
+        subscribeNodeToStateEditor(node)
         removeStyleFromNodes(Styles.chosenAutomataState)
         node.addClass(Styles.chosenAutomataState)
     }
     private fun startDragging(node: Node) {
-        movingCircle = node
+        movingNode = node
+        workingFieldItems.remove(node)
     }
 
     private fun createDefaultStateNode() = StateNode().apply {
         radius = circleRadius
     }
-
-    private fun removeStyleFromNodes(styleClass: CssRule) {
-        workingFieldItems.forEach {
-            if (it.hasClass(styleClass))
-                it.removeClass(styleClass)
+    private fun subscribeNodeToStateEditor(node: StateNode) {
+        subscribe<AutomataNameBox> { node.automataState.name = it.name }
+        subscribe<AutomataTypeBox> { node.automataState.type = it.type }
+        subscribe<AutomataXCoordinateBox> {
+            node.xCoordinate = it.value
+            node.relocate(node.xCoordinate, node.yCoordinate)
+        }
+        subscribe<AutomataYCoordinateBox> {
+            node.yCoordinate = it.value
+            node.relocate(node.xCoordinate, node.yCoordinate)
         }
     }
+    private fun unsubscribeNodesFromEditor() {
+        workingFieldItems.forEach {
+            it.apply {
+                unsubscribe<AutomataNameBox> {  }
+                unsubscribe<AutomataTypeBox> {  }
+                unsubscribe<AutomataXCoordinateBox> {  }
+                unsubscribe<AutomataYCoordinateBox> {  }
+            }
+        }
+    }
+    private fun removeStyleFromNodes(styleClass: CssRule) {
+    workingFieldItems.forEach {
+        if (it.hasClass(styleClass))
+            it.removeClass(styleClass)
+    }
+}
 
 }
