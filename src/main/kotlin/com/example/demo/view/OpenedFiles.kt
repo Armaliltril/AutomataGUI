@@ -9,7 +9,7 @@ class OpenedFiles: View() {
     override val root = tabpane {
         for (i in 0..5)
             tab("Sample $i") {
-                add(WorkingField())
+                add(find(WorkingField::class))
             }
 
     }

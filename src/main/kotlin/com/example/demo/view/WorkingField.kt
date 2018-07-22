@@ -13,7 +13,7 @@ import javafx.scene.paint.Color
 import com.example.demo.view_model.StateNode
 import tornadofx.*
 
-class WorkingField : View() {
+class WorkingField : Fragment() {
 
     private val circleRadius = 25.0
 
@@ -24,6 +24,10 @@ class WorkingField : View() {
 
     private var toolbox: Parent by singleAssign()
     private var workArea: Pane by singleAssign()
+
+    /*private fun nameLister(node: StateNode): (AutomataNameBox) -> Unit = {
+        node.automataState.name = it.name
+    }*/
 
     override val root = vbox {
 
@@ -74,7 +78,6 @@ class WorkingField : View() {
             addEventFilter(MouseEvent.MOUSE_EXITED, ::stopDrag)
             addEventFilter(MouseEvent.MOUSE_RELEASED, ::stopDrag)
         }
-
         style {
             setPrefSize(1200.0, 800.0)
             spacing = 10.px
@@ -83,7 +86,6 @@ class WorkingField : View() {
 
     init {
         toolboxItems.addAll( toolbox.childrenUnmodifiable )
-        subscribe<AutomataNameBox> { println(it.name) }
     }
 
     private fun pressNode(evt : MouseEvent) {
@@ -113,8 +115,6 @@ class WorkingField : View() {
                                 }
                             }
                     }
-
-
     }
     private fun animateDrag(evt : MouseEvent) {
 

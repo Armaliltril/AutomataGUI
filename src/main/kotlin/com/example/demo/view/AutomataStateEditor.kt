@@ -7,7 +7,7 @@ import tornadofx.*
 
 class AutomataStateEditor: View() {
 
-    private var CELLHEIGHT = 25.0
+    private var cellHeight = 25.0
 
     override val root = vbox {
         form {
@@ -23,7 +23,7 @@ class AutomataStateEditor: View() {
                 field("Type") {
                     listview<AutomataState.QueueType> {
                         AutomataState.QueueType.values().forEach { items.add(it) }
-                        prefHeight = items.size * CELLHEIGHT
+                        prefHeight = items.size * cellHeight
 
                         onUserSelect {
                             fire(AutomataTypeBox(it))
@@ -65,7 +65,7 @@ class AutomataStateEditor: View() {
                 field("Type") {
                     listview<Transaction.MessageType> {
                         Transaction.MessageType.values().forEach { items.add(it) }
-                        prefHeight = items.size * CELLHEIGHT
+                        prefHeight = items.size * cellHeight
                     }
                 }
                 field("Condition") {

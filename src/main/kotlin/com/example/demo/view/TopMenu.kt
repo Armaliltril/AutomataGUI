@@ -20,7 +20,7 @@ class TopMenu : View() {
                     addClass(Styles.menuItem)
                 }
                 item("File") {
-                    var filename = ""
+                    var filename: String
 
                     subscribe<NewFileSignal> {
                         filename = it.filename
