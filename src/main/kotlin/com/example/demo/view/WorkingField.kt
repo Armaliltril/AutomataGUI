@@ -96,6 +96,7 @@ class WorkingField : Fragment() {
                             movingNode = createDefaultStateNode()
                             //It's "kostyl" but works perfect ;)
                             workArea.add(movingNode!!)
+                            movingNode!!.addClass(Styles.movingAutomataState)
                             movingNode!!.relocate(-1000.0, -1000.0)
                         }
                     }
@@ -128,9 +129,8 @@ class WorkingField : Fragment() {
                 xCoordinateProperty.value = mousePt.x
                 yCoordinateProperty.value = mousePt.y
             }
-
+            movingNode!!.removeClass(Styles.movingAutomataState)
             workingFieldItems.add(movingNode!!)
-            (movingNode as StateNode).degubPrint()
         }
 
         movingNode = null
@@ -143,6 +143,7 @@ class WorkingField : Fragment() {
     }
     private fun startDragging(node: Node) {
         movingNode = node
+        movingNode!!.addClass(Styles.movingAutomataState)
         workingFieldItems.remove(node)
     }
 

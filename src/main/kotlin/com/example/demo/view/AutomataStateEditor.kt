@@ -45,6 +45,7 @@ class AutomataStateEditor: Fragment() {
                 button("Save") {
                     action {
                         stateModel.commit()
+                        stateModel.node.applyStyleByType()
                         relocate(stateModel.node)
                     }
                 }
