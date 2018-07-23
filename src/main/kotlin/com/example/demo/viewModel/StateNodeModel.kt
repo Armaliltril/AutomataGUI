@@ -1,4 +1,4 @@
-package com.example.demo.view_model
+package com.example.demo.viewModel
 
 import tornadofx.*
 

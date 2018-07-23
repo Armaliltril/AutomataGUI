@@ -1,16 +1,11 @@
 package com.example.demo.view
 
-import com.example.demo.automata.AutomataState
-import com.example.demo.automata.Transaction
-import com.example.demo.view_model.StateNode
-import com.example.demo.view_model.StateNodeModel
-import com.example.demo.automata.AutomataState.QueueType
+import com.example.demo.viewModel.StateNode
+import com.example.demo.viewModel.StateNodeModel
+import com.example.demo.viewModel.StateNode.QueueType
 import tornadofx.*
-import kotlin.coroutines.experimental.buildSequence
 
 class AutomataStateEditor: Fragment() {
-
-    private var cellHeight = 25.0
 
     var stateModel = StateNodeModel(StateNode())
 
@@ -53,26 +48,6 @@ class AutomataStateEditor: Fragment() {
         }
     }
 
-    private fun getConnection(transaction: Transaction) =
-            fieldset {
-                field("Name") {
-                    textfield(transaction.name) {
-
-                    }
-                }
-                field("Type") {
-                    listview<Transaction.MessageType> {
-                        Transaction.MessageType.values().forEach { items.add(it) }
-                        prefHeight = items.size * cellHeight
-                    }
-                }
-                field("Condition") {
-
-                }
-                field("Connected With") {
-
-                }
-            }
     private fun relocate(node: StateNode) {
         node.relocate(node.xCoordinateProperty.value, node.yCoordinateProperty.value)
     }

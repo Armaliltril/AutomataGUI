@@ -9,7 +9,7 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
-import com.example.demo.view_model.StateNode
+import com.example.demo.viewModel.StateNode
 import tornadofx.*
 
 class WorkingField : Fragment() {

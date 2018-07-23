@@ -1,11 +1,7 @@
-package com.example.demo.view_model
+package com.example.demo.viewModel
 
-import com.example.demo.app.Styles
 import javafx.beans.property.SimpleDoubleProperty
-import javafx.beans.property.SimpleIntegerProperty
-import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
-import tornadofx.*
 
 abstract class GraphNode: Circle() {
     val connections = mutableListOf<Connection>()
