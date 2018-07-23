@@ -2,55 +2,33 @@ package com.example.demo.view
 
 import com.example.demo.automata.AutomataState
 import com.example.demo.automata.Transaction
-import com.example.demo.signals.*
+import com.example.demo.view_model.StateNode
 import tornadofx.*
+import com.example.demo.view_model.StateNodeModel
 
-class AutomataStateEditor: View() {
+class AutomataStateEditor: Fragment() {
 
     private var cellHeight = 25.0
+
+    var stateModel = StateNodeModel(StateNode())
 
     override val root = vbox {
         form {
             fieldset {
                 field("Name") {
-                    textfield {
-                        action {
-                            fire(AutomataNameBox(text))
-                        }
-                        subscribe<AutomataStateBox> { text = it.state.automataState.name }
-                    }
+                    textfield(stateModel.name)
                 }
                 field("Type") {
                     listview<AutomataState.QueueType> {
-                        AutomataState.QueueType.values().forEach { items.add(it) }
-                        prefHeight = items.size * cellHeight
-
-                        onUserSelect {
-                            fire(AutomataTypeBox(it))
-                        }
-
-                        subscribe<AutomataStateBox> { /*TODO*/ }
+                    //TODO
                     }
                 }
                 field("X Coordinate") {
-                    textfield {
-                        // TODO: Add filter
-                        action {
-                            fire(AutomataXCoordinateBox(text.toDouble()))
-                        }
-                        subscribe<AutomataStateBox> { text = it.state.xCoordinate.toString() }
-                    }
+                    textfield(stateModel.xCoordinate)
                 }
                 field("Y Coordinate") {
-                    textfield {
-                        // TODO: Add filter
-                        action {
-                            fire(AutomataYCoordinateBox(text.toDouble()))
-                        }
-                        subscribe<AutomataStateBox> { text = it.state.yCoordinate.toString() }
-                    }
+                    textfield(stateModel.yCoordinate)
                 }
-
             }
         }
     }

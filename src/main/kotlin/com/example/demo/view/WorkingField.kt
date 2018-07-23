@@ -1,7 +1,6 @@
 package com.example.demo.view
 
 import com.example.demo.app.Styles
-import com.example.demo.signals.*
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Node
@@ -24,10 +23,7 @@ class WorkingField : Fragment() {
 
     private var toolbox: Parent by singleAssign()
     private var workArea: Pane by singleAssign()
-
-    /*private fun nameLister(node: StateNode): (AutomataNameBox) -> Unit = {
-        node.automataState.name = it.name
-    }*/
+    private val automataStateEditor = find(AutomataStateEditor::class)
 
     override val root = vbox {
 
@@ -65,6 +61,7 @@ class WorkingField : Fragment() {
                     hgrow = Priority.ALWAYS
                 }
             }
+            add(automataStateEditor)
 
             vboxConstraints {
                 vgrow = Priority.ALWAYS
@@ -128,22 +125,23 @@ class WorkingField : Fragment() {
         if (movingNode != null) {
             val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
             (movingNode!! as StateNode).apply {
-                xCoordinate = mousePt.x
-                yCoordinate = mousePt.y
+                xCoordinateProperty.value = mousePt.x
+                yCoordinateProperty.value = mousePt.y
             }
 
             workingFieldItems.add(movingNode!!)
+            (movingNode as StateNode).degubPrint()
         }
 
         movingNode = null
     }
 
-    private fun selectNode(node: Node) {
-        fire(AutomataStateBox(node as StateNode))
-        unsubscribeNodesFromEditor()
-        subscribeNodeToStateEditor(node)
+    private fun selectNode(selectedNode: Node) {
+        automataStateEditor.stateModel.rebind {
+            node = selectedNode as StateNode
+        }
         removeStyleFromNodes(Styles.chosenAutomataState)
-        node.addClass(Styles.chosenAutomataState)
+        selectedNode.addClass(Styles.chosenAutomataState)
     }
     private fun startDragging(node: Node) {
         movingNode = node
@@ -152,28 +150,6 @@ class WorkingField : Fragment() {
 
     private fun createDefaultStateNode() = StateNode().apply {
         radius = circleRadius
-    }
-    private fun subscribeNodeToStateEditor(node: StateNode) {
-        subscribe<AutomataNameBox> { node.automataState.name = it.name }
-        subscribe<AutomataTypeBox> { node.automataState.type = it.type }
-        subscribe<AutomataXCoordinateBox> {
-            node.xCoordinate = it.value
-            node.relocate(node.xCoordinate, node.yCoordinate)
-        }
-        subscribe<AutomataYCoordinateBox> {
-            node.yCoordinate = it.value
-            node.relocate(node.xCoordinate, node.yCoordinate)
-        }
-    }
-    private fun unsubscribeNodesFromEditor() {
-        workingFieldItems.forEach {
-            it.apply {
-                unsubscribe<AutomataNameBox> {  }
-                unsubscribe<AutomataTypeBox> {  }
-                unsubscribe<AutomataXCoordinateBox> {  }
-                unsubscribe<AutomataYCoordinateBox> {  }
-            }
-        }
     }
     private fun removeStyleFromNodes(styleClass: CssRule) {
     workingFieldItems.forEach {
