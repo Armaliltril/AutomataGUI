@@ -3,8 +3,10 @@ package com.example.demo.view
 import com.example.demo.automata.AutomataState
 import com.example.demo.automata.Transaction
 import com.example.demo.view_model.StateNode
-import tornadofx.*
 import com.example.demo.view_model.StateNodeModel
+import com.example.demo.automata.AutomataState.QueueType
+import tornadofx.*
+import kotlin.coroutines.experimental.buildSequence
 
 class AutomataStateEditor: Fragment() {
 
@@ -17,28 +19,33 @@ class AutomataStateEditor: Fragment() {
             fieldset {
                 field("Name") {
                     textfield(stateModel.name) {
-                        action { stateModel.commit() }
+                        required()
                     }
                 }
                 field("Type") {
-                    listview<AutomataState.QueueType> {
-                    //TODO
-                    }
+                    val queueTypes = QueueType.values().toList().observable()
+                    combobox(stateModel.type, queueTypes)
                 }
                 field("X Coordinate") {
                     textfield(stateModel.xCoordinate) {
                         action {
-                            stateModel.commit()
                             relocate(stateModel.node)
                         }
+                        required()
                     }
                 }
                 field("Y Coordinate") {
                     textfield(stateModel.yCoordinate) {
                         action {
-                            stateModel.commit()
                             relocate(stateModel.node)
                         }
+                        required()
+                    }
+                }
+                button("Save") {
+                    action {
+                        stateModel.commit()
+                        relocate(stateModel.node)
                     }
                 }
             }
@@ -68,5 +75,4 @@ class AutomataStateEditor: Fragment() {
     private fun relocate(node: StateNode) {
         node.relocate(node.xCoordinateProperty.value, node.yCoordinateProperty.value)
     }
-
 }
