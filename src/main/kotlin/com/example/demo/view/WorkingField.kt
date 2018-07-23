@@ -108,7 +108,7 @@ class WorkingField : Fragment() {
                             if (this != null) {
                                 when {
                                     evt.isShiftDown -> startDragging(this)
-                                    else -> selectNode(this)
+                                    else -> selectNode(this as StateNode)
                                 }
                             }
                     }
@@ -136,10 +136,8 @@ class WorkingField : Fragment() {
         movingNode = null
     }
 
-    private fun selectNode(selectedNode: Node) {
-        automataStateEditor.stateModel.rebind {
-            node = selectedNode as StateNode
-        }
+    private fun selectNode(selectedNode: StateNode) {
+        automataStateEditor.stateModel.rebind { node = selectedNode }
         removeStyleFromNodes(Styles.chosenAutomataState)
         selectedNode.addClass(Styles.chosenAutomataState)
     }

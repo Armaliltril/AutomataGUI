@@ -9,7 +9,7 @@ import tornadofx.*
 class StateNode: GraphNode() {
     val automataState = AutomataState("default", AutomataState.QueueType.GENERAL)
 
-    val stateNameProperty = SimpleStringProperty("default")
+    val stateNameProperty = SimpleStringProperty("DEFAULT")
     val stateTypeProperty = SimpleObjectProperty<AutomataState.QueueType> (AutomataState.QueueType.GENERAL)
 
     init {

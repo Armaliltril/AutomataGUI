@@ -16,7 +16,9 @@ class AutomataStateEditor: Fragment() {
         form {
             fieldset {
                 field("Name") {
-                    textfield(stateModel.name)
+                    textfield(stateModel.name) {
+                        action { stateModel.commit() }
+                    }
                 }
                 field("Type") {
                     listview<AutomataState.QueueType> {
@@ -24,10 +26,20 @@ class AutomataStateEditor: Fragment() {
                     }
                 }
                 field("X Coordinate") {
-                    textfield(stateModel.xCoordinate)
+                    textfield(stateModel.xCoordinate) {
+                        action {
+                            stateModel.commit()
+                            relocate(stateModel.node)
+                        }
+                    }
                 }
                 field("Y Coordinate") {
-                    textfield(stateModel.yCoordinate)
+                    textfield(stateModel.yCoordinate) {
+                        action {
+                            stateModel.commit()
+                            relocate(stateModel.node)
+                        }
+                    }
                 }
             }
         }
@@ -53,7 +65,8 @@ class AutomataStateEditor: Fragment() {
 
                 }
             }
+    private fun relocate(node: StateNode) {
+        node.relocate(node.xCoordinateProperty.value, node.yCoordinateProperty.value)
+    }
 
 }
-
-//TODO: Add subscribes
