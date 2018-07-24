@@ -39,16 +39,23 @@ class AutomataStateEditor: Fragment() {
                 }
                 button("Save") {
                     action {
-                        stateModel.commit()
-                        stateModel.node.applyStyleByType()
-                        relocate(stateModel.node)
+                        saveChanges()
                     }
                 }
             }
+        }
+
+        shortcut("Ctrl+S") {
+            saveChanges()
         }
     }
 
     private fun relocate(node: StateNode) {
         node.relocate(node.xCoordinateProperty.value, node.yCoordinateProperty.value)
+    }
+    private fun saveChanges() {
+        stateModel.commit()
+        stateModel.node.applyStyleByType()
+        relocate(stateModel.node)
     }
 }
