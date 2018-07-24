@@ -13,15 +13,15 @@ class StateNode: GraphNode() {
         FINAL;
     }
 
-    val stateNameProperty = SimpleStringProperty("DEFAULT")
-    val stateTypeProperty = SimpleObjectProperty<QueueType> (QueueType.GENERAL)
+    val nameProperty = SimpleStringProperty("DEFAULT")
+    val typeProperty = SimpleObjectProperty<QueueType> (QueueType.GENERAL)
 
     init {
         applyStyleByType()
     }
 
     fun applyStyleByType() {
-        when(stateTypeProperty.value) {
+        when(typeProperty.value) {
             QueueType.INITIAL -> style { fill = Color.GREEN }
             QueueType.GENERAL -> style { fill = Color.RED }
             QueueType.FINAL -> style { fill = Color.BLUE }
