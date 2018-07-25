@@ -1,9 +1,8 @@
 package com.example.demo.viewModel
 
 import javafx.beans.property.SimpleObjectProperty
-import tornadofx.*
 
-class Connection(): GraphConnection() {
+class Connection: GraphConnection() {
 
     enum class MessageType {
         PRIVATE,

@@ -16,17 +16,15 @@ import tornadofx.*
 
 class WorkingField : Fragment() {
 
-    private val circleRadius = 25.0
-
-    private val toolboxItems = mutableListOf<Node>()
-    private val workingFieldItems = mutableListOf<Node>()
-
-    private var movingNode: Node? = null
-    private var movingLine: Line? = null
-
     private var toolbox: Parent by singleAssign()
     private var workArea: Pane by singleAssign()
     private val automataStateEditor = find(AutomataStateEditor::class)
+
+    private val toolboxItems = mutableListOf<Node>()
+    private val workAreaNodes = mutableListOf<Node>()
+
+    private var movingNode: Node? = null
+    private var movingLine: Line? = null
 
     override val root = vbox {
 
@@ -34,7 +32,7 @@ class WorkingField : Fragment() {
 
             toolbox = vbox {
 
-                add(createDefaultStateNode())
+                add(StateNode())
 
                 // In case of other objects
                 spacing = 10.0
@@ -66,17 +64,17 @@ class WorkingField : Fragment() {
             }
             add(automataStateEditor)
 
+            addEventFilter(MouseEvent.MOUSE_PRESSED, ::pressNode)
+            addEventFilter(MouseEvent.MOUSE_DRAGGED, ::animateDrag)
+            addEventFilter(MouseEvent.MOUSE_EXITED, ::stopDrag)
+            addEventFilter(MouseEvent.MOUSE_RELEASED, ::stopDrag)
+
             vboxConstraints {
                 vgrow = Priority.ALWAYS
             }
 
             padding = Insets(10.0)
             spacing = 10.0
-
-            addEventFilter(MouseEvent.MOUSE_PRESSED, ::pressNode)
-            addEventFilter(MouseEvent.MOUSE_DRAGGED, ::animateDrag)
-            addEventFilter(MouseEvent.MOUSE_EXITED, ::stopDrag)
-            addEventFilter(MouseEvent.MOUSE_RELEASED, ::stopDrag)
         }
         style {
             setPrefSize(1200.0, 800.0)
@@ -93,7 +91,7 @@ class WorkingField : Fragment() {
         toolboxItems.getItemUnderMouse(evt)
                     .apply {
                         if( this != null ) {
-                            movingNode = createDefaultStateNode()
+                            movingNode = StateNode()
                             workArea.add(movingNode!!)
                             movingNode!!.addClass(Styles.movingAutomataState)
                             //It's "kostyl" but works perfect ;)
@@ -101,7 +99,7 @@ class WorkingField : Fragment() {
                         }
                     }
 
-        workingFieldItems.getItemUnderMouse(evt)
+        workAreaNodes.getItemUnderMouse(evt)
                          .apply {
                             if (this != null) {
                                 when {
@@ -114,13 +112,10 @@ class WorkingField : Fragment() {
     }
     private fun animateDrag(evt : MouseEvent) {
 
-        val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
+        val mousePt = workArea.getMousePosition(evt)
 
         if (workArea.contains(mousePt) && movingNode != null) {
-            (movingNode as StateNode).apply {
-                relocate(mousePt.x, mousePt.y)
-                relocateConnections()
-            }
+            movingNode!!.relocate(mousePt.x, mousePt.y)
         }
         else if (workArea.contains(mousePt) && movingLine != null) {
             movingLine!!.apply {
@@ -132,34 +127,14 @@ class WorkingField : Fragment() {
     private fun stopDrag(evt : MouseEvent) {
 
         if (movingNode != null) {
-            val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
-
-            (movingNode!! as StateNode).apply {
-                xCoordinateProperty.value = mousePt.x
-                yCoordinateProperty.value = mousePt.y
-                relocateConnections()
-            }
-
-            movingNode!!.removeClass(Styles.movingAutomataState)
-            workingFieldItems.add(movingNode!!)
-            //DEBUG
-            println((movingNode as StateNode).connections)
+            placeMovingNodeToGround(evt)
         }
-        else {
-            val node = workingFieldItems.getItemUnderMouse(evt)
-            if (movingLine != null) {
-                if (node != null) {
-                    node as StateNode
-                    (movingLine as Connection).apply {
-                        endX = node.xCoordinateProperty.value
-                        endY = node.yCoordinateProperty.value
-                        endNodeProperty.value = node
-                    }
-                    node.connections.add(movingLine as Connection)
-                }
-                else {
-                    movingLine!!.removeFromParent()
-                }
+        else if (movingLine != null){
+            val node = workAreaNodes.getItemUnderMouse(evt)
+
+            when(node) {
+                null -> endOfLineLandedOnNothing()
+                else -> (node as StateNode).bindEndOfLine()
             }
         }
 
@@ -173,51 +148,61 @@ class WorkingField : Fragment() {
         selectedNode.addClass(Styles.chosenAutomataState)
     }
     private fun startConnection(node: StateNode) {
-        movingLine = Connection().apply {
-            startNodeProperty.value = node
-            startXProperty().bindBidirectional(node.xCoordinateProperty)
-            startYProperty().bindBidirectional(node.yCoordinateProperty)
-        }
+        movingLine = node.startNewConnection()
         node.connections.add(movingLine as Connection)
         workArea.add(movingLine!!)
     }
     private fun startDragging(node: Node) {
         movingNode = node
         movingNode!!.addClass(Styles.movingAutomataState)
-        workingFieldItems.remove(node)
+        workAreaNodes.remove(node)
     }
 
+    private fun StateNode.bindEndOfLine() {
+        val node = this
+        (movingLine as Connection).apply {
+            endNodeProperty.value = node
+            endXProperty().bindBidirectional(node.xCoordinateProperty)
+            endYProperty().bindBidirectional(node.yCoordinateProperty)
+        }
+        node.connections.add(movingLine as Connection)
+    }
+    private fun endOfLineLandedOnNothing() {
+        (movingLine as Connection).apply {
+            startNodeProperty.value.connections.remove(this)
+            removeFromParent()
+        }
+    }
+    private fun placeMovingNodeToGround(evt: MouseEvent) {
+        val mousePt = workArea.getMousePosition(evt)
+
+        (movingNode as StateNode).apply {
+            xCoordinateProperty.value = mousePt.x
+            yCoordinateProperty.value = mousePt.y
+        }
+
+        movingNode!!.removeClass(Styles.movingAutomataState)
+        workAreaNodes.add(movingNode!!)
+    }
+
+    private fun StateNode.startNewConnection() = Connection().apply {
+        val node = this@startNewConnection
+        startNodeProperty.value = node
+        startXProperty().bindBidirectional(node.xCoordinateProperty)
+        startYProperty().bindBidirectional(node.yCoordinateProperty)
+    }
     private fun Collection<Node>.getItemUnderMouse(evt: MouseEvent): Node? {
         return this.firstOrNull {
             val mousePt = it.sceneToLocal(evt.sceneX, evt.sceneY)
             it.contains(mousePt.x, mousePt.y)
         }
     }
-    private fun StateNode.relocateConnections() {
-        connections.forEach {
-            it.apply {
-                when(this@relocateConnections) {
-                    it.startNodeProperty.value -> {
-                        startX = xCoordinateProperty.value
-                        startY = yCoordinateProperty.value
-                    }
-                    it.endNodeProperty.value -> {
-                        endX = xCoordinateProperty.value
-                        endY = yCoordinateProperty.value
-                    }
-                    else -> println("That was not supposed to happen")
-                }
-            }
-        }
-    }
-    private fun createDefaultStateNode() = StateNode().apply {
-        radius = circleRadius
-    }
+    private fun Pane.getMousePosition(evt: MouseEvent) = sceneToLocal(evt.sceneX, evt.sceneY)
+
     private fun removeStyleFromNodes(styleClass: CssRule) {
-    workingFieldItems.forEach {
+    workAreaNodes.forEach {
         if (it.hasClass(styleClass))
             it.removeClass(styleClass)
     }
 }
-
 }

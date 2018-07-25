@@ -8,4 +8,8 @@ abstract class GraphNode: Circle() {
 
     val xCoordinateProperty = SimpleDoubleProperty(0.0)
     val yCoordinateProperty = SimpleDoubleProperty(0.0)
+
+    init {
+        radius = 25.0
+    }
 }
