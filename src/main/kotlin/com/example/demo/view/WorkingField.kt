@@ -115,8 +115,12 @@ class WorkingField : Fragment() {
     private fun animateDrag(evt : MouseEvent) {
 
         val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
+
         if (workArea.contains(mousePt) && movingNode != null) {
-            movingNode!!.relocate( mousePt.x, mousePt.y )
+            (movingNode as StateNode).apply {
+                relocate(mousePt.x, mousePt.y)
+                relocateConnections()
+            }
         }
         else if (workArea.contains(mousePt) && movingLine != null) {
             movingLine!!.apply {
@@ -133,24 +137,13 @@ class WorkingField : Fragment() {
             (movingNode!! as StateNode).apply {
                 xCoordinateProperty.value = mousePt.x
                 yCoordinateProperty.value = mousePt.y
-                connections.forEach {
-                    it.apply {
-                        when(this) {
-                            it.startNodeProperty.value -> {
-                                startX = mousePt.x
-                                startY = mousePt.y
-                            }
-                            it.endNodeProperty.value -> {
-                                endX = mousePt.x
-                                endY = mousePt.y
-                            }
-                        }
-                    }
-                }
+                relocateConnections()
             }
 
             movingNode!!.removeClass(Styles.movingAutomataState)
             workingFieldItems.add(movingNode!!)
+            //DEBUG
+            println((movingNode as StateNode).connections)
         }
         else {
             val node = workingFieldItems.getItemUnderMouse(evt)
@@ -162,6 +155,7 @@ class WorkingField : Fragment() {
                         endY = node.yCoordinateProperty.value
                         endNodeProperty.value = node
                     }
+                    node.connections.add(movingLine as Connection)
                 }
                 else {
                     movingLine!!.removeFromParent()
@@ -181,9 +175,10 @@ class WorkingField : Fragment() {
     private fun startConnection(node: StateNode) {
         movingLine = Connection().apply {
             startNodeProperty.value = node
-            startX = node.xCoordinateProperty.value
-            startY = node.yCoordinateProperty.value
+            startXProperty().bindBidirectional(node.xCoordinateProperty)
+            startYProperty().bindBidirectional(node.yCoordinateProperty)
         }
+        node.connections.add(movingLine as Connection)
         workArea.add(movingLine!!)
     }
     private fun startDragging(node: Node) {
@@ -196,6 +191,23 @@ class WorkingField : Fragment() {
         return this.firstOrNull {
             val mousePt = it.sceneToLocal(evt.sceneX, evt.sceneY)
             it.contains(mousePt.x, mousePt.y)
+        }
+    }
+    private fun StateNode.relocateConnections() {
+        connections.forEach {
+            it.apply {
+                when(this@relocateConnections) {
+                    it.startNodeProperty.value -> {
+                        startX = xCoordinateProperty.value
+                        startY = yCoordinateProperty.value
+                    }
+                    it.endNodeProperty.value -> {
+                        endX = xCoordinateProperty.value
+                        endY = yCoordinateProperty.value
+                    }
+                    else -> println("That was not supposed to happen")
+                }
+            }
         }
     }
     private fun createDefaultStateNode() = StateNode().apply {
