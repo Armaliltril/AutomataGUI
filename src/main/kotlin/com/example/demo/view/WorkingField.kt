@@ -1,6 +1,7 @@
 package com.example.demo.view
 
 import com.example.demo.app.Styles
+import com.example.demo.viewModel.Connection
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Node
@@ -10,6 +11,7 @@ import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
 import com.example.demo.viewModel.StateNode
+import javafx.scene.shape.Line
 import tornadofx.*
 
 class WorkingField : Fragment() {
@@ -20,6 +22,7 @@ class WorkingField : Fragment() {
     private val workingFieldItems = mutableListOf<Node>()
 
     private var movingNode: Node? = null
+    private var movingLine: Line? = null
 
     private var toolbox: Parent by singleAssign()
     private var workArea: Pane by singleAssign()
@@ -87,52 +90,86 @@ class WorkingField : Fragment() {
 
     private fun pressNode(evt : MouseEvent) {
 
-        toolboxItems.firstOrNull {
-                        val mousePt = it.sceneToLocal(evt.sceneX, evt.sceneY)
-             it.contains(mousePt)
-                    }
+        toolboxItems.getItemUnderMouse(evt)
                     .apply {
                         if( this != null ) {
                             movingNode = createDefaultStateNode()
-                            //It's "kostyl" but works perfect ;)
                             workArea.add(movingNode!!)
                             movingNode!!.addClass(Styles.movingAutomataState)
+                            //It's "kostyl" but works perfect ;)
                             movingNode!!.relocate(-1000.0, -1000.0)
                         }
                     }
 
-        workingFieldItems.firstOrNull {
-                            val mousePt = it.sceneToLocal(evt.sceneX, evt.sceneY)
-                            it.contains(mousePt)
-            }
+        workingFieldItems.getItemUnderMouse(evt)
                          .apply {
                             if (this != null) {
                                 when {
                                     evt.isShiftDown -> startDragging(this)
+                                    evt.isControlDown -> startConnection(this as StateNode)
                                     else -> selectNode(this as StateNode)
                                 }
                             }
-                    }
+                        }
     }
     private fun animateDrag(evt : MouseEvent) {
 
         val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
-        if( workArea.contains(mousePt) && movingNode != null ) {
+        if (workArea.contains(mousePt) && movingNode != null) {
             movingNode!!.relocate( mousePt.x, mousePt.y )
+        }
+        else if (workArea.contains(mousePt) && movingLine != null) {
+            movingLine!!.apply {
+                endX = mousePt.x
+                endY = mousePt.y
+            }
         }
     }
     private fun stopDrag(evt : MouseEvent) {
 
         if (movingNode != null) {
             val mousePt = workArea.sceneToLocal( evt.sceneX, evt.sceneY )
+
             (movingNode!! as StateNode).apply {
                 xCoordinateProperty.value = mousePt.x
                 yCoordinateProperty.value = mousePt.y
+                connections.forEach {
+                    it.apply {
+                        when(this) {
+                            it.startNodeProperty.value -> {
+                                startX = mousePt.x
+                                startY = mousePt.y
+                            }
+                            it.endNodeProperty.value -> {
+                                endX = mousePt.x
+                                endY = mousePt.y
+                            }
+                        }
+                    }
+                }
             }
+
             movingNode!!.removeClass(Styles.movingAutomataState)
             workingFieldItems.add(movingNode!!)
         }
+        else {
+            val node = workingFieldItems.getItemUnderMouse(evt)
+            if (movingLine != null) {
+                if (node != null) {
+                    node as StateNode
+                    (movingLine as Connection).apply {
+                        endX = node.xCoordinateProperty.value
+                        endY = node.yCoordinateProperty.value
+                        endNodeProperty.value = node
+                    }
+                }
+                else {
+                    movingLine!!.removeFromParent()
+                }
+            }
+        }
 
+        movingLine = null
         movingNode = null
     }
 
@@ -141,12 +178,26 @@ class WorkingField : Fragment() {
         removeStyleFromNodes(Styles.chosenAutomataState)
         selectedNode.addClass(Styles.chosenAutomataState)
     }
+    private fun startConnection(node: StateNode) {
+        movingLine = Connection().apply {
+            startNodeProperty.value = node
+            startX = node.xCoordinateProperty.value
+            startY = node.yCoordinateProperty.value
+        }
+        workArea.add(movingLine!!)
+    }
     private fun startDragging(node: Node) {
         movingNode = node
         movingNode!!.addClass(Styles.movingAutomataState)
         workingFieldItems.remove(node)
     }
 
+    private fun Collection<Node>.getItemUnderMouse(evt: MouseEvent): Node? {
+        return this.firstOrNull {
+            val mousePt = it.sceneToLocal(evt.sceneX, evt.sceneY)
+            it.contains(mousePt.x, mousePt.y)
+        }
+    }
     private fun createDefaultStateNode() = StateNode().apply {
         radius = circleRadius
     }

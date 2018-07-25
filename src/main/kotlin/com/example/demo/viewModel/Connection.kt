@@ -3,7 +3,7 @@ package com.example.demo.viewModel
 import javafx.beans.property.SimpleObjectProperty
 import tornadofx.*
 
-class Connection(var startNode: GraphNode, var endNode: GraphNode): GraphConnection() {
+class Connection(): GraphConnection() {
 
     enum class MessageType {
         PRIVATE,
