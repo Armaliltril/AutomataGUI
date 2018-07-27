@@ -1,6 +1,7 @@
 package com.example.demo.viewModel
 
 import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
 
 class Connection: GraphConnection() {
 
@@ -14,5 +15,6 @@ class Connection: GraphConnection() {
     override val endNodeProperty = SimpleObjectProperty(StateNode())
     override val startNodeProperty = SimpleObjectProperty(StateNode())
 
+    val nameProperty = SimpleStringProperty("DEFAULT")
     val typeProperty = SimpleObjectProperty(MessageType.PRIVATE)
 }
