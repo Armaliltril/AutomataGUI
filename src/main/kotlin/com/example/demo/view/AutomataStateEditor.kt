@@ -26,18 +26,12 @@ class AutomataStateEditor: Fragment() {
                     combobox(stateModel.type, queueTypes)
                 }
                 field("X Coordinate") {
-                    textfield(stateModel.xCoordinate) {
-                        action {
-                            relocate(stateModel.node)
-                        }
+                    textfield(stateModel.x) {
                         required()
                     }
                 }
                 field("Y Coordinate") {
-                    textfield(stateModel.yCoordinate) {
-                        action {
-                            relocate(stateModel.node)
-                        }
+                    textfield(stateModel.y) {
                         required()
                     }
                 }
@@ -72,9 +66,6 @@ class AutomataStateEditor: Fragment() {
         }
     }
 
-    private fun relocate(node: StateNode) {
-        node.relocate(node.xCoordinateProperty.value, node.yCoordinateProperty.value)
-    }
     private fun saveChanges() {
         saveState()
         saveConnection()
@@ -82,7 +73,6 @@ class AutomataStateEditor: Fragment() {
     private fun saveState() {
         stateModel.commit()
         stateModel.node.applyStyleByType()
-        relocate(stateModel.node)
     }
     private fun saveConnection() {
         connectionModel.commit()

@@ -11,6 +11,7 @@ import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
 import com.example.demo.viewModel.StateNode
+import javafx.scene.shape.Circle
 import javafx.scene.shape.Line
 import tornadofx.*
 
@@ -109,13 +110,20 @@ class WorkingField : Fragment() {
                                 }
                             }
                         }
+
     }
     private fun animateDrag(evt : MouseEvent) {
 
         val mousePt = workArea.getMousePosition(evt)
 
         if (workArea.contains(mousePt) && movingNode != null) {
-            movingNode!!.relocate(mousePt.x, mousePt.y)
+            val radius = getMovingNodeRadius()
+            (movingNode as Circle).apply {
+                centerX = mousePt.x
+                centerY = mousePt.y
+                relocate(centerX - radius, centerY - radius)
+            }
+
         }
         else if (workArea.contains(mousePt) && movingLine != null) {
             movingLine!!.apply {
@@ -146,6 +154,8 @@ class WorkingField : Fragment() {
         automataStateEditor.stateModel.rebind { node = selectedNode }
         removeStyleFromNodes(Styles.chosenAutomataState)
         selectedNode.addClass(Styles.chosenAutomataState)
+        //DEBUG
+        println(selectedNode)
     }
     private fun startConnection(node: StateNode) {
         movingLine = node.startNewConnection()
@@ -162,8 +172,8 @@ class WorkingField : Fragment() {
         val node = this
         (movingLine as Connection).apply {
             endNodeProperty.value = node
-            endXProperty().bindBidirectional(node.xCoordinateProperty)
-            endYProperty().bindBidirectional(node.yCoordinateProperty)
+            endXProperty().bindBidirectional(node.centerXProperty())
+            endYProperty().bindBidirectional(node.centerYProperty())
         }
         node.connections.add(movingLine as Connection)
     }
@@ -175,10 +185,11 @@ class WorkingField : Fragment() {
     }
     private fun placeMovingNodeToGround(evt: MouseEvent) {
         val mousePt = workArea.getMousePosition(evt)
+        println(mousePt)
 
         (movingNode as StateNode).apply {
-            xCoordinateProperty.value = mousePt.x
-            yCoordinateProperty.value = mousePt.y
+            centerX = mousePt.x
+            centerY = mousePt.y
         }
 
         movingNode!!.removeClass(Styles.movingAutomataState)
@@ -188,8 +199,8 @@ class WorkingField : Fragment() {
     private fun StateNode.startNewConnection() = Connection().apply {
         val node = this@startNewConnection
         startNodeProperty.value = node
-        startXProperty().bindBidirectional(node.xCoordinateProperty)
-        startYProperty().bindBidirectional(node.yCoordinateProperty)
+        startXProperty().bindBidirectional(node.centerXProperty())
+        startYProperty().bindBidirectional(node.centerYProperty())
     }
     private fun Collection<Node>.getItemUnderMouse(evt: MouseEvent): Node? {
         return this.firstOrNull {
@@ -198,6 +209,7 @@ class WorkingField : Fragment() {
         }
     }
     private fun Pane.getMousePosition(evt: MouseEvent) = sceneToLocal(evt.sceneX, evt.sceneY)
+    private fun getMovingNodeRadius() = (movingNode as Circle).radius
 
     private fun removeStyleFromNodes(styleClass: CssRule) {
     workAreaNodes.forEach {

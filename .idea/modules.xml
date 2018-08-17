@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/maven-8-test.iml" filepath="$PROJECT_DIR$/maven-8-test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AutomataGUI.iml" filepath="$PROJECT_DIR$/AutomataGUI.iml" />
     </modules>
   </component>
 </project>

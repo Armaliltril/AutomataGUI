@@ -5,6 +5,6 @@ import tornadofx.*
 class StateNodeModel(var node: StateNode): ViewModel() {
     var name = bind { node.nameProperty }
     var type = bind { node.typeProperty }
-    var xCoordinate = bind { node.xCoordinateProperty }
-    var yCoordinate = bind { node.yCoordinateProperty }
+    var x = bind { node.centerXProperty() }
+    var y = bind { node.centerYProperty() }
 }

@@ -6,11 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="maven-8-test" />
+        <module name="AutomataGUI" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="maven-8-test" target="1.5" />
+      <module name="AutomataGUI" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>

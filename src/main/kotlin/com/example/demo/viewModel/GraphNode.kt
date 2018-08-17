@@ -6,9 +6,6 @@ import javafx.scene.shape.Circle
 abstract class GraphNode: Circle() {
     val connections = mutableListOf<GraphConnection>()
 
-    val xCoordinateProperty = SimpleDoubleProperty(0.0)
-    val yCoordinateProperty = SimpleDoubleProperty(0.0)
-
     init {
         radius = 25.0
     }
