@@ -5,7 +5,6 @@ import com.example.demo.viewModel.automata.Connection
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Node
-import javafx.scene.Parent
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
@@ -151,7 +150,7 @@ open class WorkingField : Fragment() {
     }
 
     private fun selectNode(selectedNode: StateNode) {
-        stateEditor.state.rebind { node = selectedNode }
+        stateEditor.nodeModel.rebind { node = selectedNode }
         removeStyleFromNodes(Styles.chosenAutomataState)
         selectedNode.addClass(Styles.chosenAutomataState)
     }

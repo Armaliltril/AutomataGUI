@@ -1,6 +1,5 @@
 package com.example.demo.view
 
-import com.example.demo.viewModel.automata.Connection
 import com.example.demo.viewModel.automata.ConnectionModel
 import com.example.demo.viewModel.automata.StateNode
 import com.example.demo.viewModel.automata.StateNodeModel
@@ -8,30 +7,29 @@ import com.example.demo.viewModel.automata.StateNode.QueueType
 import com.example.demo.viewModel.automata.Connection.MessageType
 import tornadofx.*
 
-class AutomataStateEditor: Fragment() {
-
-    var stateModel = StateNodeModel(StateNode())
-    var connectionModel = ConnectionModel(Connection())
+class AutomataStateEditor: StateEditor() {
 
     override val root = vbox {
+        nodeModel as StateNodeModel
+        connectionModel as ConnectionModel
         form {
             fieldset("State") {
                 field("Name") {
-                    textfield(stateModel.name) {
+                    textfield(nodeModel.name) {
                         required()
                     }
                 }
                 field("Type") {
                     val queueTypes = QueueType.values().toList().observable()
-                    combobox(stateModel.type, queueTypes)
+                    combobox(nodeModel.type, queueTypes)
                 }
                 field("X Coordinate") {
-                    textfield(stateModel.x) {
+                    textfield(nodeModel.x) {
                         required()
                     }
                 }
                 field("Y Coordinate") {
-                    textfield(stateModel.y) {
+                    textfield(nodeModel.y) {
                         required()
                     }
                 }
@@ -61,15 +59,11 @@ class AutomataStateEditor: Fragment() {
         }
     }
 
-    private fun saveChanges() {
-        saveState()
-        saveConnection()
+    override fun saveNode() {
+        super.saveNode()
+        (nodeModel.node as StateNode).applyStyleByType()
     }
-    private fun saveState() {
-        stateModel.commit()
-        (stateModel.node as StateNode).applyStyleByType()
-    }
-    private fun saveConnection() {
-        connectionModel.commit()
+    override fun saveConnection() {
+        super.saveConnection()
     }
 }
