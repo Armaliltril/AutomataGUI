@@ -1,6 +1,8 @@
 package com.example.demo.view
 
 import com.example.demo.app.Styles
+import com.example.demo.viewModel.GraphConnection
+import com.example.demo.viewModel.GraphNode
 import com.example.demo.viewModel.automata.Connection
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -45,11 +47,11 @@ open class WorkingField : Fragment() {
 
     open val stateEditor = find(StateEditor::class)
 
-    open val toolboxItems = mutableListOf<Node>()
+    private val toolboxItems = mutableListOf<Node>()
     private val workAreaNodes = mutableListOf<Node>()
 
-    private var movingNode: Node? = null
-    private var movingLine: Line? = null
+    protected var movingNode: GraphNode? = null
+    protected var movingConnection: GraphConnection? = null
 
     override val root = vbox {
 
@@ -86,7 +88,7 @@ open class WorkingField : Fragment() {
         toolboxItems.addAll( toolbox.childrenUnmodifiable )
     }
 
-    private fun pressNode(evt : MouseEvent) {
+    fun pressNode(evt : MouseEvent) {
 
         toolboxItems.getItemUnderMouse(evt)
                     .apply {
@@ -101,11 +103,11 @@ open class WorkingField : Fragment() {
 
         workAreaNodes.getItemUnderMouse(evt)
                          .apply {
-                            if (this != null) {
+                            if (this != null && this is GraphNode) {
                                 when {
                                     evt.isShiftDown -> startDragging(this)
-                                    evt.isControlDown -> startConnection(this as StateNode)
-                                    else -> selectNode(this as StateNode)
+                                    evt.isControlDown -> startConnection(this)
+                                    else -> selectNode(this)
                                 }
                             }
                         }
@@ -124,91 +126,91 @@ open class WorkingField : Fragment() {
             }
 
         }
-        else if (workArea.contains(mousePt) && movingLine != null) {
-            movingLine!!.apply {
+        else if (workArea.contains(mousePt) && movingConnection != null) {
+            movingConnection!!.apply {
                 endX = mousePt.x
                 endY = mousePt.y
             }
         }
     }
-    private fun stopDrag(evt : MouseEvent) {
+    fun stopDrag(evt : MouseEvent) {
 
         if (movingNode != null) {
             placeMovingNodeToGround(evt)
         }
-        else if (movingLine != null){
+        else if (movingConnection != null){
             val node = workAreaNodes.getItemUnderMouse(evt)
 
             when(node) {
                 null -> endOfLineLandedOnNothing()
-                else -> (node as StateNode).bindEndOfLine()
+                else -> (node as GraphNode).bindEndOfLine()
             }
         }
 
-        movingLine = null
+        movingConnection = null
         movingNode = null
     }
 
-    private fun selectNode(selectedNode: StateNode) {
+    fun selectNode(selectedNode: GraphNode) {
         stateEditor.nodeModel.rebind { node = selectedNode }
         removeStyleFromNodes(Styles.chosenAutomataState)
         selectedNode.addClass(Styles.chosenAutomataState)
     }
-    private fun startConnection(node: StateNode) {
-        movingLine = node.startNewConnection()
-        node.connections.add(movingLine as Connection)
-        workArea.add(movingLine!!)
+    fun startConnection(node: GraphNode) {
+        movingConnection = node.startNewConnection()
+        node.connections.add(movingConnection as GraphConnection)
+        workArea.add(movingConnection!!)
     }
-    private fun startDragging(node: Node) {
+    fun startDragging(node: GraphNode) {
         movingNode = node
         movingNode!!.addClass(Styles.movingAutomataState)
         workAreaNodes.remove(node)
     }
 
-    private fun StateNode.bindEndOfLine() {
+    fun GraphNode.bindEndOfLine() {
         val node = this
-        (movingLine as Connection).apply {
+        movingConnection!!.apply {
             endNodeProperty.value = node
             endXProperty().bindBidirectional(node.centerXProperty())
             endYProperty().bindBidirectional(node.centerYProperty())
         }
-        node.connections.add(movingLine as Connection)
+        node.connections.add(movingConnection!!)
     }
-    private fun endOfLineLandedOnNothing() {
-        (movingLine as Connection).apply {
+    fun endOfLineLandedOnNothing() {
+        movingConnection!!.apply {
             startNodeProperty.value.connections.remove(this)
             removeFromParent()
         }
     }
-    private fun placeMovingNodeToGround(evt: MouseEvent) {
+    fun placeMovingNodeToGround(evt: MouseEvent) {
         val mousePt = workArea.getMousePosition(evt)
-        println(mousePt)
 
-        (movingNode as StateNode).apply {
+        movingNode!!.apply {
             centerX = mousePt.x
             centerY = mousePt.y
         }
 
+        //Style issue
         movingNode!!.removeClass(Styles.movingAutomataState)
         workAreaNodes.add(movingNode!!)
     }
 
-    private fun StateNode.startNewConnection() = Connection().apply {
+    fun GraphNode.startNewConnection() = GraphConnection().apply {
         val node = this@startNewConnection
         startNodeProperty.value = node
         startXProperty().bindBidirectional(node.centerXProperty())
         startYProperty().bindBidirectional(node.centerYProperty())
     }
-    private fun Collection<Node>.getItemUnderMouse(evt: MouseEvent): Node? {
+    fun Collection<Node>.getItemUnderMouse(evt: MouseEvent): Node? {
         return this.firstOrNull {
             val mousePt = it.sceneToLocal(evt.sceneX, evt.sceneY)
             it.contains(mousePt.x, mousePt.y)
         }
     }
-    private fun Pane.getMousePosition(evt: MouseEvent) = sceneToLocal(evt.sceneX, evt.sceneY)
-    private fun getMovingNodeRadius() = (movingNode as Circle).radius
+    fun Pane.getMousePosition(evt: MouseEvent) = sceneToLocal(evt.sceneX, evt.sceneY)
+    fun getMovingNodeRadius() = movingNode!!.radius
 
-    private fun removeStyleFromNodes(styleClass: CssRule) {
+    fun removeStyleFromNodes(styleClass: CssRule) {
     workAreaNodes.forEach {
         if (it.hasClass(styleClass))
             it.removeClass(styleClass)

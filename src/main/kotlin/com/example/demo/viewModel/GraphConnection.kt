@@ -7,4 +7,8 @@ open class GraphConnection(startNode: GraphNode = GraphNode(), endNode: GraphNod
 
     open val startNodeProperty: SimpleObjectProperty<GraphNode> = SimpleObjectProperty(startNode)
     open val endNodeProperty: SimpleObjectProperty<GraphNode> = SimpleObjectProperty(endNode)
+
+    init {
+        strokeWidth = 3.0
+    }
 }
