@@ -1,7 +1,7 @@
 package com.example.demo.view
 
 import com.example.demo.app.Styles
-import com.example.demo.viewModel.Connection
+import com.example.demo.viewModel.automata.Connection
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Node
@@ -10,18 +10,43 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
-import com.example.demo.viewModel.StateNode
+import com.example.demo.viewModel.automata.StateNode
 import javafx.scene.shape.Circle
 import javafx.scene.shape.Line
 import tornadofx.*
 
 open class WorkingField : Fragment() {
 
-    private var toolbox: Parent by singleAssign()
-    private var workArea: Pane by singleAssign()
-    private val automataStateEditor = find(AutomataStateEditor::class)
+    open val toolbox = vbox {
 
-    private val toolboxItems = mutableListOf<Node>()
+        add(StateNode())
+
+        // In case of other objects
+        spacing = 10.0
+        padding = Insets(10.0)
+        alignment = Pos.CENTER
+
+        hboxConstraints {
+            hgrow = Priority.NEVER
+        }
+        style {
+            backgroundColor += Color.WHITE
+            borderColor += box(Color.BLACK)
+        }
+    }
+    open val workArea = pane {
+
+        anchorpaneConstraints {
+            leftAnchor = 0.0
+            topAnchor = 0.0
+            rightAnchor = 0.0
+            bottomAnchor = 0.0
+        }
+    }
+
+    open val stateEditor = find(StateEditor::class)
+
+    open val toolboxItems = mutableListOf<Node>()
     private val workAreaNodes = mutableListOf<Node>()
 
     private var movingNode: Node? = null
@@ -30,40 +55,15 @@ open class WorkingField : Fragment() {
     override val root = vbox {
 
         hbox {
-
-            toolbox = vbox {
-
-                add(StateNode())
-
-                // In case of other objects
-                spacing = 10.0
-                padding = Insets(10.0)
-                alignment = Pos.CENTER
-
-                hboxConstraints {
-                    hgrow = Priority.NEVER
-                }
-                style {
-                    backgroundColor += Color.WHITE
-                    borderColor += box(Color.BLACK)
-                }
-            }
+            add(toolbox)
             anchorpane {
-                workArea = pane {
-
-                    anchorpaneConstraints {
-                        leftAnchor = 0.0
-                        topAnchor = 0.0
-                        rightAnchor = 0.0
-                        bottomAnchor = 0.0
-                    }
-                }
+                add(workArea)
 
                 hboxConstraints {
                     hgrow = Priority.ALWAYS
                 }
             }
-            add(automataStateEditor)
+            add(stateEditor)
 
             addEventFilter(MouseEvent.MOUSE_PRESSED, ::pressNode)
             addEventFilter(MouseEvent.MOUSE_DRAGGED, ::animateDrag)
@@ -151,11 +151,9 @@ open class WorkingField : Fragment() {
     }
 
     private fun selectNode(selectedNode: StateNode) {
-        automataStateEditor.stateModel.rebind { node = selectedNode }
+        stateEditor.state.rebind { node = selectedNode }
         removeStyleFromNodes(Styles.chosenAutomataState)
         selectedNode.addClass(Styles.chosenAutomataState)
-        //DEBUG
-        println(selectedNode)
     }
     private fun startConnection(node: StateNode) {
         movingLine = node.startNewConnection()

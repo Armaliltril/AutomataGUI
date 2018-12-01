@@ -1,11 +1,11 @@
 package com.example.demo.view
 
-import com.example.demo.viewModel.Connection
-import com.example.demo.viewModel.ConnectionModel
-import com.example.demo.viewModel.StateNode
-import com.example.demo.viewModel.StateNodeModel
-import com.example.demo.viewModel.StateNode.QueueType
-import com.example.demo.viewModel.Connection.MessageType
+import com.example.demo.viewModel.automata.Connection
+import com.example.demo.viewModel.automata.ConnectionModel
+import com.example.demo.viewModel.automata.StateNode
+import com.example.demo.viewModel.automata.StateNodeModel
+import com.example.demo.viewModel.automata.StateNode.QueueType
+import com.example.demo.viewModel.automata.Connection.MessageType
 import tornadofx.*
 
 class AutomataStateEditor: Fragment() {
@@ -67,7 +67,7 @@ class AutomataStateEditor: Fragment() {
     }
     private fun saveState() {
         stateModel.commit()
-        stateModel.node.applyStyleByType()
+        (stateModel.node as StateNode).applyStyleByType()
     }
     private fun saveConnection() {
         connectionModel.commit()

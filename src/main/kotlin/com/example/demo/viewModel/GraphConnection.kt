@@ -5,6 +5,6 @@ import javafx.scene.shape.Line
 
 open class GraphConnection(startNode: GraphNode = GraphNode(), endNode: GraphNode = GraphNode()): Line(){
 
-    open val startNodeProperty: SimpleObjectProperty<out GraphNode> = SimpleObjectProperty(startNode)
-    open val endNodeProperty: SimpleObjectProperty<out GraphNode> = SimpleObjectProperty(endNode)
+    open val startNodeProperty: SimpleObjectProperty<GraphNode> = SimpleObjectProperty(startNode)
+    open val endNodeProperty: SimpleObjectProperty<GraphNode> = SimpleObjectProperty(endNode)
 }

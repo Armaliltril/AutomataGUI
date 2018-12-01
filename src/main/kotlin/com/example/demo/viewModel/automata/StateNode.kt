@@ -1,7 +1,7 @@
-package com.example.demo.viewModel
+package com.example.demo.viewModel.automata
 
+import com.example.demo.viewModel.GraphNode
 import javafx.beans.property.SimpleObjectProperty
-import javafx.beans.property.SimpleStringProperty
 import javafx.scene.paint.Color
 import tornadofx.*
 
