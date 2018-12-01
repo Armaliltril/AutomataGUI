@@ -13,7 +13,6 @@ class StateNode: GraphNode() {
         FINAL;
     }
 
-    val nameProperty = SimpleStringProperty("DEFAULT")
     val typeProperty = SimpleObjectProperty<QueueType> (QueueType.GENERAL)
 
     init {

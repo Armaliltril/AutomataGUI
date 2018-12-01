@@ -3,7 +3,7 @@ package com.example.demo.viewModel
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 
-class Connection: GraphConnection() {
+class Connection(startNode: StateNode = StateNode(), endNode: StateNode = StateNode()): GraphConnection(startNode, endNode) {
 
     enum class MessageType {
         PRIVATE,
@@ -12,9 +12,8 @@ class Connection: GraphConnection() {
         RECEIVING
     }
 
-    override val endNodeProperty = SimpleObjectProperty(StateNode())
-    override val startNodeProperty = SimpleObjectProperty(StateNode())
+    override val startNodeProperty = SimpleObjectProperty(startNode)
+    override val endNodeProperty = SimpleObjectProperty(endNode)
 
-    val nameProperty = SimpleStringProperty("DEFAULT")
     val typeProperty = SimpleObjectProperty(MessageType.PRIVATE)
 }

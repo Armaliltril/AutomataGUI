@@ -15,7 +15,7 @@ import javafx.scene.shape.Circle
 import javafx.scene.shape.Line
 import tornadofx.*
 
-class WorkingField : Fragment() {
+open class WorkingField : Fragment() {
 
     private var toolbox: Parent by singleAssign()
     private var workArea: Pane by singleAssign()

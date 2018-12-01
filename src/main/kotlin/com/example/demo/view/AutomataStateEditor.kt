@@ -37,11 +37,6 @@ class AutomataStateEditor: Fragment() {
                 }
             }
             fieldset("Connection") {
-                field("Name") {
-                    textfield(connectionModel.name) {
-                        required()
-                    }
-                }
                 field("Type") {
                     val messageTypes = MessageType.values().toList().observable()
                     combobox(connectionModel.type, messageTypes)
