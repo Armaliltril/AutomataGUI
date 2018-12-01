@@ -1,8 +1,9 @@
 package com.example.demo.viewModel
 
 import javafx.beans.property.SimpleStringProperty
-import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
+import com.example.demo.app.Styles
+import tornadofx.*
 
 open class GraphNode: Circle() {
 
@@ -11,6 +12,6 @@ open class GraphNode: Circle() {
 
     init {
         radius = 25.0
-        fill = Color.GOLD
+        addClass(Styles.graphNode)
     }
 }

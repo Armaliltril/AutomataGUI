@@ -11,7 +11,6 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
-import com.example.demo.viewModel.automata.StateNode
 import javafx.scene.shape.Circle
 import javafx.scene.shape.Line
 import tornadofx.*
@@ -20,7 +19,7 @@ open class WorkingField : Fragment() {
 
     open val toolbox = vbox {
 
-        add(StateNode())
+        add(GraphNode())
 
         // In case of other objects
         spacing = 10.0
@@ -93,9 +92,9 @@ open class WorkingField : Fragment() {
         toolboxItems.getItemUnderMouse(evt)
                     .apply {
                         if( this != null ) {
-                            movingNode = StateNode()
+                            movingNode = GraphNode()
                             workArea.add(movingNode!!)
-                            movingNode!!.addClass(Styles.movingAutomataState)
+                            movingNode!!.addClass(Styles.moving)
                             //It's "kostyl" but works perfect ;)
                             movingNode!!.relocate(-1000.0, -1000.0)
                         }
@@ -153,8 +152,8 @@ open class WorkingField : Fragment() {
 
     fun selectNode(selectedNode: GraphNode) {
         stateEditor.nodeModel.rebind { node = selectedNode }
-        removeStyleFromNodes(Styles.chosenAutomataState)
-        selectedNode.addClass(Styles.chosenAutomataState)
+        removeStyleFromNodes(Styles.selected)
+        selectedNode.addClass(Styles.selected)
     }
     fun startConnection(node: GraphNode) {
         movingConnection = node.startNewConnection()
@@ -163,7 +162,7 @@ open class WorkingField : Fragment() {
     }
     fun startDragging(node: GraphNode) {
         movingNode = node
-        movingNode!!.addClass(Styles.movingAutomataState)
+        movingNode!!.addClass(Styles.moving)
         workAreaNodes.remove(node)
     }
 
@@ -191,7 +190,7 @@ open class WorkingField : Fragment() {
         }
 
         //Style issue
-        movingNode!!.removeClass(Styles.movingAutomataState)
+        movingNode!!.removeClass(Styles.moving)
         workAreaNodes.add(movingNode!!)
     }
 

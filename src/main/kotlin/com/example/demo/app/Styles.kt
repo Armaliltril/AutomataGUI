@@ -7,9 +7,11 @@ import tornadofx.*
 
 class Styles : Stylesheet() {
     companion object {
+        val graphNode by cssclass()
+        val selected by cssclass()
+        val moving by cssclass()
+
         val automataState by cssclass()
-        val movingAutomataState by cssclass()
-        val chosenAutomataState by cssclass()
 
         val menu by cssclass()
         val menuItem by cssclass()
@@ -18,19 +20,20 @@ class Styles : Stylesheet() {
     }
 
     init {
-        automataState {
+        graphNode {
             borderColor += box(Color.BLACK)
-            borderWidth += box(2.px)
+            borderWidth += box(3.px)
+            fill = Color.GOLD
+
+            and(automataState) {
+                fill = Color.RED
+            }
         }
-        movingAutomataState {
-            borderColor += box(Color.BLACK)
-            borderWidth += box(2.px)
+        moving {
             effect = DropShadow()
             opacity = 0.7
         }
-        chosenAutomataState {
-            borderColor += box(Color.BLACK)
-            borderWidth += box(2.px)
+        selected {
             effect = javafx.scene.effect.InnerShadow()
         }
         menu and menuItem {
