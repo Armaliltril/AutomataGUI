@@ -3,7 +3,6 @@ package com.example.demo.view
 import com.example.demo.app.Styles
 import com.example.demo.viewModel.GraphConnection
 import com.example.demo.viewModel.GraphNode
-import com.example.demo.viewModel.automata.Connection
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Node
@@ -12,16 +11,12 @@ import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
-import javafx.scene.shape.Line
 import tornadofx.*
 
 open class WorkingField : Fragment() {
 
-    open val toolbox = vbox {
+    private val toolbox = vbox {
 
-        add(GraphNode())
-
-        // In case of other objects
         spacing = 10.0
         padding = Insets(10.0)
         alignment = Pos.CENTER
@@ -34,7 +29,7 @@ open class WorkingField : Fragment() {
             borderColor += box(Color.BLACK)
         }
     }
-    open val workArea = pane {
+    private val workArea = pane {
 
         anchorpaneConstraints {
             leftAnchor = 0.0
@@ -46,48 +41,47 @@ open class WorkingField : Fragment() {
 
     open val stateEditor = find(StateEditor::class)
 
-    private val toolboxItems = mutableListOf<Node>()
+    open val toolboxItems = listOf<Node>(GraphNode())
     private val workAreaNodes = mutableListOf<Node>()
 
     protected var movingNode: GraphNode? = null
     protected var movingConnection: GraphConnection? = null
 
-    override val root = vbox {
+    override val root = hbox {
+        add(toolbox)
+        anchorpane {
+            add(workArea)
 
-        hbox {
-            add(toolbox)
-            anchorpane {
-                add(workArea)
-
-                hboxConstraints {
-                    hgrow = Priority.ALWAYS
-                }
+            hboxConstraints {
+                hgrow = Priority.ALWAYS
             }
-            add(stateEditor)
-
-            addEventFilter(MouseEvent.MOUSE_PRESSED, ::pressNode)
-            addEventFilter(MouseEvent.MOUSE_DRAGGED, ::animateDrag)
-            addEventFilter(MouseEvent.MOUSE_EXITED, ::stopDrag)
-            addEventFilter(MouseEvent.MOUSE_RELEASED, ::stopDrag)
-
-            vboxConstraints {
-                vgrow = Priority.ALWAYS
-            }
-
-            padding = Insets(10.0)
-            spacing = 10.0
         }
-        style {
-            setPrefSize(1200.0, 800.0)
-            spacing = 10.px
+        //BUG
+        add(stateEditor)
+
+        addEventFilter(MouseEvent.MOUSE_PRESSED, ::pressNode)
+        addEventFilter(MouseEvent.MOUSE_DRAGGED, ::animateDrag)
+        addEventFilter(MouseEvent.MOUSE_EXITED, ::stopDrag)
+        addEventFilter(MouseEvent.MOUSE_RELEASED, ::stopDrag)
+
+        vboxConstraints {
+            vgrow = Priority.ALWAYS
         }
+
+        padding = Insets(10.0)
+        spacing = 10.0
+        setPrefSize(1200.0, 800.0)
     }
 
     init {
-        toolboxItems.addAll( toolbox.childrenUnmodifiable )
+        fillToolbox()
     }
 
-    fun pressNode(evt : MouseEvent) {
+    protected fun fillToolbox() {
+        toolboxItems.forEach { toolbox.add(it) }
+    }
+
+    private fun pressNode(evt : MouseEvent) {
 
         toolboxItems.getItemUnderMouse(evt)
                     .apply {
@@ -102,11 +96,17 @@ open class WorkingField : Fragment() {
 
         workAreaNodes.getItemUnderMouse(evt)
                          .apply {
-                            if (this != null && this is GraphNode) {
-                                when {
-                                    evt.isShiftDown -> startDragging(this)
-                                    evt.isControlDown -> startConnection(this)
-                                    else -> selectNode(this)
+                            if (this != null) {
+                                if (this is GraphNode) {
+                                    when {
+                                        evt.isShiftDown -> startDragging(this)
+                                        evt.isControlDown -> startConnection(this)
+                                        else -> selectNode(this)
+                                    }
+                                }
+                                else if (this is GraphConnection) {
+                                    //TODO(Select connection)
+                                    println("Selected connection")
                                 }
                             }
                         }
@@ -132,7 +132,7 @@ open class WorkingField : Fragment() {
             }
         }
     }
-    fun stopDrag(evt : MouseEvent) {
+    private fun stopDrag(evt : MouseEvent) {
 
         if (movingNode != null) {
             placeMovingNodeToGround(evt)
@@ -150,23 +150,23 @@ open class WorkingField : Fragment() {
         movingNode = null
     }
 
-    fun selectNode(selectedNode: GraphNode) {
+    private fun selectNode(selectedNode: GraphNode) {
         stateEditor.nodeModel.rebind { node = selectedNode }
         removeStyleFromNodes(Styles.selected)
         selectedNode.addClass(Styles.selected)
     }
-    fun startConnection(node: GraphNode) {
+    private fun startConnection(node: GraphNode) {
         movingConnection = node.startNewConnection()
-        node.connections.add(movingConnection as GraphConnection)
+        node.connections.add(movingConnection!!)
         workArea.add(movingConnection!!)
     }
-    fun startDragging(node: GraphNode) {
+    private fun startDragging(node: GraphNode) {
         movingNode = node
         movingNode!!.addClass(Styles.moving)
         workAreaNodes.remove(node)
     }
 
-    fun GraphNode.bindEndOfLine() {
+    private fun GraphNode.bindEndOfLine() {
         val node = this
         movingConnection!!.apply {
             endNodeProperty.value = node
@@ -175,13 +175,13 @@ open class WorkingField : Fragment() {
         }
         node.connections.add(movingConnection!!)
     }
-    fun endOfLineLandedOnNothing() {
+    private fun endOfLineLandedOnNothing() {
         movingConnection!!.apply {
             startNodeProperty.value.connections.remove(this)
             removeFromParent()
         }
     }
-    fun placeMovingNodeToGround(evt: MouseEvent) {
+    private fun placeMovingNodeToGround(evt: MouseEvent) {
         val mousePt = workArea.getMousePosition(evt)
 
         movingNode!!.apply {
@@ -189,27 +189,26 @@ open class WorkingField : Fragment() {
             centerY = mousePt.y
         }
 
-        //Style issue
         movingNode!!.removeClass(Styles.moving)
         workAreaNodes.add(movingNode!!)
     }
 
-    fun GraphNode.startNewConnection() = GraphConnection().apply {
+    private fun GraphNode.startNewConnection() = GraphConnection().apply {
         val node = this@startNewConnection
         startNodeProperty.value = node
         startXProperty().bindBidirectional(node.centerXProperty())
         startYProperty().bindBidirectional(node.centerYProperty())
     }
-    fun Collection<Node>.getItemUnderMouse(evt: MouseEvent): Node? {
+    private fun Collection<Node>.getItemUnderMouse(evt: MouseEvent): Node? {
         return this.firstOrNull {
             val mousePt = it.sceneToLocal(evt.sceneX, evt.sceneY)
             it.contains(mousePt.x, mousePt.y)
         }
     }
-    fun Pane.getMousePosition(evt: MouseEvent) = sceneToLocal(evt.sceneX, evt.sceneY)
-    fun getMovingNodeRadius() = movingNode!!.radius
+    private fun Pane.getMousePosition(evt: MouseEvent) = sceneToLocal(evt.sceneX, evt.sceneY)
+    private fun getMovingNodeRadius() = movingNode!!.radius
 
-    fun removeStyleFromNodes(styleClass: CssRule) {
+    private fun removeStyleFromNodes(styleClass: CssRule) {
     workAreaNodes.forEach {
         if (it.hasClass(styleClass))
             it.removeClass(styleClass)
