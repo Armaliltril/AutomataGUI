@@ -104,9 +104,8 @@ open class WorkingField : Fragment() {
                                         else -> selectNode(this)
                                     }
                                 }
-                                else if (this is GraphConnection) {
-                                    //TODO(Select connection)
-                                    println("Selected connection")
+                                else if (this is GraphConnection){
+                                    selectConnection(this)
                                 }
                             }
                         }
@@ -155,6 +154,9 @@ open class WorkingField : Fragment() {
         removeStyleFromNodes(Styles.selected)
         selectedNode.addClass(Styles.selected)
     }
+    private fun selectConnection(selectedConnection: GraphConnection) {
+        stateEditor.connectionModel.rebind { connection = selectedConnection }
+    }
     private fun startConnection(node: GraphNode) {
         movingConnection = node.startNewConnection()
         node.connections.add(movingConnection!!)
@@ -174,6 +176,7 @@ open class WorkingField : Fragment() {
             endYProperty().bindBidirectional(node.centerYProperty())
         }
         node.connections.add(movingConnection!!)
+        workAreaNodes.add(movingConnection!!)
     }
     private fun endOfLineLandedOnNothing() {
         movingConnection!!.apply {

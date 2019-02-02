@@ -34,10 +34,10 @@ open class StateEditor: Fragment() {
             fieldset("Connection") {
                 //TODO: get automata's names list for combobox
                 field("Start Node") {
-                    textfield(connectionModel.startNode.name)
+                    textfield(connectionModel.startNode.value.nameProperty.value)
                 }
                 field("End Node") {
-                    textfield(connectionModel.endNode.name)
+                    textfield(connectionModel.endNode.value.nameProperty.value)
                 }
             }
 

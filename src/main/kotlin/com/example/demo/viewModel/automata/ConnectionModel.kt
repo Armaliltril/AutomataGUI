@@ -4,5 +4,5 @@ import com.example.demo.viewModel.GraphConnectionModel
 import tornadofx.*
 
 class ConnectionModel(connection: Connection): GraphConnectionModel(connection) {
-    val type = bind { connection.typeProperty }
+    var type = bind { connection.typeProperty }
 }
